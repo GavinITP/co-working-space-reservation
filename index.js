@@ -4,6 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 const connectDB = require("./config/connectDB");
+const auth = require("./routes/auth");
 
 dotenv.config({ path: "./config/.env" });
 connectDB();
@@ -16,9 +17,7 @@ app.use(express.json());
 app.use(cors());
 
 // routes
-app.get("/", (_req, res) => {
-  res.json({ message: "It's working" });
-});
+app.use("/api/v1/auth", auth);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 9000;
 app.listen(port, console.log("Server is running on port:", port));
