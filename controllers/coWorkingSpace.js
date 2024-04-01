@@ -1,22 +1,98 @@
 const CoworkingSpace = require("../models/coWorkingSpace");
 
+const getCoWorkingSpaces = async (_req, res) => {
+  try {
+    const coWorkingSpaces = await CoworkingSpace.find();
+    res.status(200).json({ success: true, data: coWorkingSpaces });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const getCoWorkingSpaceById = async (req, res) => {
+  try {
+    const coWorkingSpace = await CoworkingSpace.findById(req.params.id);
+    if (!coWorkingSpace) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Co-working space not found." });
+    }
+    res.status(200).json({ success: true, data: coWorkingSpace });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 const createCoWorkingSpace = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
-      res
+      return res
         .status(403)
-        .json({ success: false, message: "You're not administrator." });
-      return;
+        .json({ success: false, message: "You're not an administrator." });
     }
 
     const coWorkingSpace = await CoworkingSpace.create(req.body);
     res.status(201).json({ success: true, data: coWorkingSpace });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-module.exports = { createCoWorkingSpace };
+const updateCoWorkingSpace = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ success: false, message: "You're not an administrator." });
+    }
+
+    const coWorkingSpace = await CoworkingSpace.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!coWorkingSpace) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Co-working space not found." });
+    }
+    res.status(200).json({ success: true, data: coWorkingSpace });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const deleteCoWorkingSpace = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      res
+        .status(403)
+        .json({ success: false, message: "You're not an administrator." });
+      return;
+    }
+
+    const coWorkingSpace = await CoworkingSpace.findByIdAndDelete(
+      req.params.id
+    );
+    if (!coWorkingSpace) {
+      res
+        .status(404)
+        .json({ success: false, message: "Co-working space not found." });
+      return;
+    }
+    res.status(200).json({ success: true, data: coWorkingSpace });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = {
+  createCoWorkingSpace,
+  getCoWorkingSpaces,
+  getCoWorkingSpaceById,
+  updateCoWorkingSpace,
+  deleteCoWorkingSpace,
+};
