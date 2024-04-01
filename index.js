@@ -4,7 +4,9 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 const connectDB = require("./config/connectDB");
+
 const auth = require("./routes/auth");
+const coWorkingSpace = require("./routes/coWorkingSpace");
 
 dotenv.config({ path: "./config/.env" });
 connectDB();
@@ -18,6 +20,7 @@ app.use(cors());
 
 // routes
 app.use("/api/v1/auth", auth);
+app.use("/api/v1/co-working-space", coWorkingSpace);
 
 const port = process.env.PORT;
 app.listen(port, console.log("Server is running on port:", port));
