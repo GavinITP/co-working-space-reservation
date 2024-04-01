@@ -19,5 +19,5 @@ app.use(cors());
 // routes
 app.use("/api/v1/auth", auth);
 
-const port = process.env.PORT || 9000;
+const port = process.env.PORT;
 app.listen(port, console.log("Server is running on port:", port));

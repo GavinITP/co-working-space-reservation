@@ -21,7 +21,7 @@ const hashPassword = async (password) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, phone, role } = req.body;
     let user = await User.findOne({ email });
     if (user) {
       res.status(400).json({ message: "User already exists." });
@@ -32,12 +32,13 @@ const register = async (req, res) => {
     user = await User.create({
       name,
       email,
+      phone,
       password: hashedPassword,
       role,
     });
 
     const token = generateToken(user);
-    res.json({ success: true, name, email, role, token });
+    res.json({ success: true, name, email, phone, role, token });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -69,6 +70,7 @@ const login = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       token,
     });
   } catch (err) {
