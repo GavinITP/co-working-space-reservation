@@ -6,7 +6,7 @@ const reservationSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  coworkingSpace: {
+  coWorkingSpace: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "CoworkingSpace",
     required: true,
