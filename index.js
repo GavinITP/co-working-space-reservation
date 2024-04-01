@@ -1,13 +1,17 @@
+// libraries
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
+// config
 const connectDB = require("./config/connectDB");
 
+// routes
 const auth = require("./routes/auth");
 const coWorkingSpace = require("./routes/coWorkingSpace");
 
+// set up
 dotenv.config({ path: "./config/.env" });
 connectDB();
 
