@@ -1,5 +1,10 @@
 const CoworkingSpace = require("../models/coWorkingSpace");
 
+/**
+ * @route GET /api/v1/co-working-space
+ * @desc Get all co-working spaces.
+ * @access Public
+ */
 const getCoWorkingSpaces = async (_req, res) => {
   try {
     const coWorkingSpaces = await CoworkingSpace.find();
@@ -9,6 +14,11 @@ const getCoWorkingSpaces = async (_req, res) => {
   }
 };
 
+/**
+ * @route GET /api/v1/co-working-space:id
+ * @desc Get a co-working space by ID.
+ * @access Public
+ */
 const getCoWorkingSpaceById = async (req, res) => {
   try {
     const coWorkingSpace = await CoworkingSpace.findById(req.params.id);
@@ -23,6 +33,11 @@ const getCoWorkingSpaceById = async (req, res) => {
   }
 };
 
+/**
+ * @route POST /api/v1/co-working-space
+ * @desc Create a new co-working space.
+ * @access Private (Admin)
+ */
 const createCoWorkingSpace = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -38,6 +53,11 @@ const createCoWorkingSpace = async (req, res) => {
   }
 };
 
+/**
+ * @route PUT /api/v1/co-working-space/:id
+ * @desc Update a co-working space by ID.
+ * @access Private (Admin)
+ */
 const updateCoWorkingSpace = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -65,6 +85,11 @@ const updateCoWorkingSpace = async (req, res) => {
   }
 };
 
+/**
+ * @route DELETE /api/v1/co-working-space/:id
+ * @desc Delete a co-working space by ID.
+ * @access Private (Admin)
+ */
 const deleteCoWorkingSpace = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
