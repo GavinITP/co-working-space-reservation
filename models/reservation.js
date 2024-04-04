@@ -15,12 +15,6 @@ const reservationSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Please add the date for the reservation"],
   },
-  numberOfRooms: {
-    type: Number,
-    required: [true, "Please add the number of rooms to reserve"],
-    min: 1,
-    max: 3,
-  },
 });
 
 module.exports = mongoose.model("RoomReservation", reservationSchema);
