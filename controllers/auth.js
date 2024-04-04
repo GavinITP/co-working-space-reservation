@@ -2,6 +2,11 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+/**
+ * Generate JWT token for user authentication.
+ * @param {Object} user - User object containing user ID.
+ * @returns {string} JWT token.
+ */
 const generateToken = (user) => {
   const payload = {
     user: {
@@ -14,11 +19,21 @@ const generateToken = (user) => {
   });
 };
 
+/**
+ * Hash the user password securely using bcrypt.
+ * @param {string} password - User password to be hashed.
+ * @returns {Promise<string>} Hashed password.
+ */
 const hashPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
 };
 
+/**
+ * @desc Register a new user
+ * @route POST /api/v1/auth/register
+ * @access Public
+ */
 const register = async (req, res) => {
   try {
     const { name, email, password, phone, role } = req.body;
@@ -45,6 +60,11 @@ const register = async (req, res) => {
   }
 };
 
+/**
+ * @desc Login user
+ * @route POST /api/v1/auth/login
+ * @access Public
+ */
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -79,6 +99,11 @@ const login = async (req, res) => {
   }
 };
 
+/**
+ * @desc Get current logged-in user
+ * @route GET /api/v1/auth/me
+ * @access Public
+ */
 const getMe = async (req, res) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({ success: true, data: user });
