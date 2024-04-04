@@ -3,8 +3,8 @@ const CoworkingSpace = require("./coWorkingSpace");
 
 /**
  * @desc    Get all reservations
- * @route   GET /api/reservations
- * @access  Protected (only accessible by authenticated users)
+ * @route   GET /api/v1/reservation
+ * @access  Private
  */
 const getReservations = async (req, res) => {
   try {
@@ -18,8 +18,8 @@ const getReservations = async (req, res) => {
 
 /**
  * @desc    Create a new reservation
- * @route   POST /api/reservations
- * @access  Protected (only accessible by authenticated users)
+ * @route   POST /api/v1/reservation
+ * @access  Private (only user, not admin)
  */
 const createReservation = async (req, res) => {
   const { coWorkingSpaceId, reservationDate } = req.body;
@@ -64,8 +64,8 @@ const createReservation = async (req, res) => {
 
 /**
  * @desc    Update a reservation by ID
- * @route   PUT /api/reservations/:id
- * @access  Protected (only accessible by authenticated users)
+ * @route   PUT /api/v1/reservation/:id
+ * @access  Private
  */
 const updateReservation = async (req, res) => {
   const { coworkingSpaceId, reservationDate } = req.body;
@@ -127,8 +127,8 @@ const updateReservation = async (req, res) => {
 
 /**
  * @desc    Delete a reservation by ID
- * @route   DELETE /api/reservations/:id
- * @access  Protected (only accessible by authenticated users)
+ * @route   DELETE /api/v1/reservation/:id
+ * @access  Private
  */
 const deleteReservation = async (req, res) => {
   try {
