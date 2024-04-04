@@ -2,10 +2,18 @@ const CoWorkingSpace = require("../models/coWorkingSpace");
 
 // Check if reservation time falls within co-working space opening hours.
 const validateReservationTime = (coWorkingSpace, date, startTime, endTime) => {
-  const openingTime = new Date(`${date}T${coWorkingSpace.openingTime}`);
-  const closingTime = new Date(`${date}T${coWorkingSpace.closingTime}`);
-  const reservationStartDateTime = new Date(`${date}T${startTime}`);
-  const reservationEndDateTime = new Date(`${date}T${endTime}`);
+  const openingTime = new Date(
+    `${date.split("-").reverse().join("-")}T${coWorkingSpace.openingTime}`
+  );
+  const closingTime = new Date(
+    `${date.split("-").reverse().join("-")}T${coWorkingSpace.closingTime}`
+  );
+  const reservationStartDateTime = new Date(
+    `${date.split("-").reverse().join("-")}T${startTime}`
+  );
+  const reservationEndDateTime = new Date(
+    `${date.split("-").reverse().join("-")}T${endTime}`
+  );
 
   return (
     reservationStartDateTime >= openingTime &&
