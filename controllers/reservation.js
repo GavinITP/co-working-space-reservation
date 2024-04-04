@@ -1,5 +1,8 @@
 const Reservation = require("../models/reservation");
-const CoworkingSpace = require("../models/coWorkingSpace");
+const {
+  findCoWorkingSpace,
+  validateReservationTime,
+} = require("../helpers/reservation");
 
 /**
  * @desc    Get all reservations
@@ -23,38 +26,29 @@ const getReservations = async (req, res) => {
  * @access  Private (only user, not admin)
  */
 const createReservation = async (req, res) => {
-  const { coWorkingSpaceId, reservationDate } = req.body;
-
   try {
-    // Check if user is authorized to make a reservation
     if (req.user.role !== "user") {
       return res
         .status(401)
         .json({ success: false, error: "Only users can make reservations" });
     }
 
-    // If coworking space not found, return an error
-    const coWorkingSpace = await CoworkingSpace.findById(coWorkingSpaceId);
-    if (!coWorkingSpace) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Co-working space not found" });
-    }
+    const { coWorkingSpaceId, date, startTime, endTime } = req.body;
+    const coWorkingSpace = await findCoWorkingSpace(coWorkingSpaceId);
 
-    // Check if reservation date is within coworking space opening hours
-    const openingTime = coWorkingSpace.openingTime;
-    const closingTime = coWorkingSpace.closingTime;
-    if (reservationDate < openingTime || reservationDate > closingTime) {
+    if (!validateReservationTime(coWorkingSpace, date, startTime, endTime)) {
       return res.status(400).json({
         success: false,
-        error: "Reservation date is outside of co-working space opening hours",
+        error: "Reservation time is outside of co-working space opening hours",
       });
     }
 
     const reservation = await Reservation.create({
       user: req.user.id,
       coWorkingSpace: coWorkingSpaceId,
-      date: reservationDate,
+      date: new Date(`${date}T${startTime}`),
+      startTime,
+      endTime,
     });
 
     res.status(200).json({ success: true, data: reservation });
@@ -69,19 +63,16 @@ const createReservation = async (req, res) => {
  * @access  Private
  */
 const updateReservation = async (req, res) => {
-  const { coworkingSpaceId, reservationDate } = req.body;
-
   try {
+    const { coWorkingSpaceId, startDate, startTime, endTime } = req.body;
     const reservation = await Reservation.findById(req.params.id);
 
-    // If reservation not found, return an error
     if (!reservation) {
       return res
         .status(404)
         .json({ success: false, error: "Reservation not found" });
     }
 
-    // Check if user is authorized to update the reservation
     if (
       req.user.role === "user" &&
       reservation.user.toString() !== req.user.id
@@ -92,36 +83,29 @@ const updateReservation = async (req, res) => {
       });
     }
 
-    const coWorkingSpace = await CoworkingSpace.findById(coworkingSpaceId);
+    const coWorkingSpace = await findCoWorkingSpace(coWorkingSpaceId);
 
-    // If coworking space not found, return an error
-    if (!coWorkingSpace) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Co-working space not found" });
-    }
-
-    // Check if reservation date is within coworking space opening hours
-    const openingTime = coWorkingSpace.openingTime;
-    const closingTime = coWorkingSpace.closingTime;
-    if (reservationDate < openingTime || reservationDate > closingTime) {
+    if (
+      !validateReservationTime(coWorkingSpace, startDate, startTime, endTime)
+    ) {
       return res.status(400).json({
         success: false,
-        error: "Reservation date is outside of co-working space opening hours",
+        error: "Reservation time is outside of co-working space opening hours",
       });
     }
 
     const updatedReservation = await Reservation.findByIdAndUpdate(
       req.params.id,
       {
-        date: reservationDate,
+        date: new Date(`${startDate}T${startTime}`),
+        startTime,
+        endTime,
       },
       { new: true }
     );
 
     res.status(200).json({ success: true, data: updatedReservation });
   } catch (error) {
-    // Handle errors
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -135,14 +119,12 @@ const deleteReservation = async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id);
 
-    // If reservation not found, return an error
     if (!reservation) {
       return res
         .status(404)
         .json({ success: false, error: "Reservation not found" });
     }
 
-    // Check if user is authorized to delete the reservation
     if (
       req.user.role === "user" &&
       reservation.user.toString() !== req.user.id
@@ -153,7 +135,6 @@ const deleteReservation = async (req, res) => {
       });
     }
 
-    // Delete the reservation
     await Reservation.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ success: true, data: reservation });

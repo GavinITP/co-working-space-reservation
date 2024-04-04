@@ -15,11 +15,19 @@ const CoworkingSpaceSchema = new mongoose.Schema({
     required: [true, "Please add a telephone number for the co-working space"],
   },
   openingTime: {
-    type: Date,
+    type: String,
+    match: [
+      /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/,
+      "Please use a valid time format (HH:mm:ss)",
+    ],
     required: [true, "Please add the opening time for the co-working space"],
   },
   closingTime: {
-    type: Date,
+    type: String,
+    match: [
+      /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/,
+      "Please use a valid time format (HH:mm:ss)",
+    ],
     required: [true, "Please add the closing time for the co-working space"],
   },
 });
