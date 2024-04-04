@@ -1,4 +1,4 @@
-const CoworkingSpace = require("../models/coWorkingSpace");
+const CoWorkingSpace = require("../models/coWorkingSpace");
 
 /**
  * @route GET /api/v1/co-working-space
@@ -7,7 +7,7 @@ const CoworkingSpace = require("../models/coWorkingSpace");
  */
 const getCoWorkingSpaces = async (_req, res) => {
   try {
-    const coWorkingSpaces = await CoworkingSpace.find();
+    const coWorkingSpaces = await CoWorkingSpace.find();
     res.status(200).json({ success: true, data: coWorkingSpaces });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -21,7 +21,7 @@ const getCoWorkingSpaces = async (_req, res) => {
  */
 const getCoWorkingSpaceById = async (req, res) => {
   try {
-    const coWorkingSpace = await CoworkingSpace.findById(req.params.id);
+    const coWorkingSpace = await CoWorkingSpace.findById(req.params.id);
     if (!coWorkingSpace) {
       return res
         .status(404)
@@ -46,7 +46,7 @@ const createCoWorkingSpace = async (req, res) => {
         .json({ success: false, message: "You're not an administrator." });
     }
 
-    const coWorkingSpace = await CoworkingSpace.create(req.body);
+    const coWorkingSpace = await CoWorkingSpace.create(req.body);
     res.status(201).json({ success: true, data: coWorkingSpace });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -66,7 +66,7 @@ const updateCoWorkingSpace = async (req, res) => {
         .json({ success: false, message: "You're not an administrator." });
     }
 
-    const coWorkingSpace = await CoworkingSpace.findByIdAndUpdate(
+    const coWorkingSpace = await CoWorkingSpace.findByIdAndUpdate(
       req.params.id,
       req.body,
       {
@@ -99,7 +99,7 @@ const deleteCoWorkingSpace = async (req, res) => {
       return;
     }
 
-    const coWorkingSpace = await CoworkingSpace.findByIdAndDelete(
+    const coWorkingSpace = await CoWorkingSpace.findByIdAndDelete(
       req.params.id
     );
     if (!coWorkingSpace) {
