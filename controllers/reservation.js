@@ -1,5 +1,5 @@
-const Reservation = require("./reservation");
-const CoworkingSpace = require("./coWorkingSpace");
+const Reservation = require("../models/reservation");
+const CoworkingSpace = require("../models/coWorkingSpace");
 
 /**
  * @desc    Get all reservations
@@ -8,8 +8,9 @@ const CoworkingSpace = require("./coWorkingSpace");
  */
 const getReservations = async (req, res) => {
   try {
-    const query = req.user.role === "admin" ? {} : { user: req.user.id };
-    const reservations = await Reservation.find(query);
+    const reservations = await Reservation.find(
+      req.user.role === "admin" ? {} : { user: req.user.id }
+    );
     res.status(200).json({ success: true, data: reservations });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
