@@ -45,7 +45,7 @@ const createReservation = async (req: Request, res: Response) => {
     const reservation = await Reservation.create({
       user: req.user.id,
       coWorkingSpace: coWorkingSpaceId,
-      date: new Date(`${date}T${startTime}`),
+      date,
       startTime,
       endTime,
     });

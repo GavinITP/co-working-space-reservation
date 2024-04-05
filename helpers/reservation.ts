@@ -1,9 +1,11 @@
 import { CoWorkingSpaceType } from "../types";
 
 const parseDateTime = (date: string, time: string): Date => {
-  const [year, month, day] = date.split("-").map(Number);
+  const [day, month, year] = date.split("-").map(Number);
   const [hours, minutes] = time.split(":").map(Number);
-  return new Date(year, month - 1, day, hours, minutes);
+  const parsedDate = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+  return parsedDate;
 };
 
 const validateReservationTime = (
