@@ -8,7 +8,12 @@ const {
 } = require("../controllers/coWorkingSpace");
 const protect = require("../middleware/auth");
 
+const feedbackRouter = require("./feedback");
+
 const router = express.Router();
+
+// Re-route into other resource router
+router.use("/:coWorkingSpaceId/feedbacks/", feedbackRouter);
 
 router.get("/", getCoWorkingSpaces);
 router.get("/:id", getCoWorkingSpaceById);

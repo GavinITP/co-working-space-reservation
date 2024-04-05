@@ -32,20 +32,23 @@ const CoworkingSpaceSchema = new mongoose.Schema({
   },
 });
 
-
-//Cascade Delete Feedback when a co-working-apace is deleted 
-CoworkingSpaceSchema.pre('deleteOne',{document:true , query: false}, async function(next){
-  console.log(`Feed back are being remove from co-working-apace ${this._id}`);
-  await this.model('feedback').deleteMany({coWorkingSpace : this._id});
-  next();
-});
+//Cascade Delete Feedback when a co-working-apace is deleted
+CoworkingSpaceSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    console.log(`Feed back are being remove from co-working-apace ${this._id}`);
+    await this.model("feedback").deleteMany({ coWorkingSpace: this._id });
+    next();
+  }
+);
 
 // Reverse populate with virtuals
-CoworkingSpaceSchema.virtual('feedback' , {
+CoworkingSpaceSchema.virtual("feedback", {
   ref: "feedback",
-  localField :  "_id",
-  foreignField : 'coWorkingSpace',
-  justOne:false
-})
+  localField: "_id",
+  foreignField: "coWorkingSpace",
+  justOne: false,
+});
 
 module.exports = mongoose.model("CoworkingSpace", CoworkingSpaceSchema);
