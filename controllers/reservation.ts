@@ -1,22 +1,21 @@
-const Reservation = require("../models/reservation");
-const {
-  findCoWorkingSpace,
-  validateReservationTime,
-} = require("../helpers/reservation");
+import Reservation from "../models/reservation";
+import validateReservationTime from "../helpers/reservation";
+import { Request, Response } from "express";
+import CoWorkingSpace from "../models/coWorkingSpace";
 
 /**
  * @desc    Get all reservations
  * @route   GET /api/v1/reservation
  * @access  Private
  */
-const getReservations = async (req, res) => {
+const getReservations = async (req: Request, res: Response) => {
   try {
     const reservations = await Reservation.find(
       req.user.role === "admin" ? {} : { user: req.user.id }
     );
     res.status(200).json({ success: true, data: reservations });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -25,16 +24,16 @@ const getReservations = async (req, res) => {
  * @route   POST /api/v1/reservation
  * @access  Private (only user, not admin)
  */
-const createReservation = async (req, res) => {
+const createReservation = async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== "user") {
-      return res
-        .status(401)
-        .json({ success: false, error: "Only users can make reservations" });
-    }
-
     const { coWorkingSpaceId, date, startTime, endTime } = req.body;
-    const coWorkingSpace = await findCoWorkingSpace(coWorkingSpaceId);
+
+    const coWorkingSpace = await CoWorkingSpace.findById(coWorkingSpaceId);
+    if (!coWorkingSpace) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Co-working space not found" });
+    }
 
     if (!validateReservationTime(coWorkingSpace, date, startTime, endTime)) {
       return res.status(400).json({
@@ -52,8 +51,8 @@ const createReservation = async (req, res) => {
     });
 
     res.status(200).json({ success: true, data: reservation });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -62,7 +61,7 @@ const createReservation = async (req, res) => {
  * @route   PUT /api/v1/reservation/:id
  * @access  Private
  */
-const updateReservation = async (req, res) => {
+const updateReservation = async (req: Request, res: Response) => {
   try {
     const { coWorkingSpaceId, startDate, startTime, endTime } = req.body;
     const reservation = await Reservation.findById(req.params.id);
@@ -83,7 +82,12 @@ const updateReservation = async (req, res) => {
       });
     }
 
-    const coWorkingSpace = await findCoWorkingSpace(coWorkingSpaceId);
+    const coWorkingSpace = await CoWorkingSpace.findById(coWorkingSpaceId);
+    if (!coWorkingSpace) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Co-working space not found" });
+    }
 
     if (
       !validateReservationTime(coWorkingSpace, startDate, startTime, endTime)
@@ -105,8 +109,8 @@ const updateReservation = async (req, res) => {
     );
 
     res.status(200).json({ success: true, data: updatedReservation });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -115,7 +119,7 @@ const updateReservation = async (req, res) => {
  * @route   DELETE /api/v1/reservation/:id
  * @access  Private
  */
-const deleteReservation = async (req, res) => {
+const deleteReservation = async (req: Request, res: Response) => {
   try {
     const reservation = await Reservation.findById(req.params.id);
 
@@ -138,12 +142,12 @@ const deleteReservation = async (req, res) => {
     await Reservation.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ success: true, data: reservation });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
-module.exports = {
+export {
   getReservations,
   createReservation,
   updateReservation,

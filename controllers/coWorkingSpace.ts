@@ -1,16 +1,17 @@
-const CoWorkingSpace = require("../models/coWorkingSpace");
+import { Request, Response } from "express";
+import CoWorkingSpace from "../models/coWorkingSpace";
 
 /**
  * @route GET /api/v1/co-working-space
  * @desc Get all co-working spaces.
  * @access Public
  */
-const getCoWorkingSpaces = async (_req, res) => {
+const getCoWorkingSpaces = async (_req: Request, res: Response) => {
   try {
     const coWorkingSpaces = await CoWorkingSpace.find();
     res.status(200).json({ success: true, data: coWorkingSpaces });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: (err as Error).message });
   }
 };
 
@@ -19,7 +20,7 @@ const getCoWorkingSpaces = async (_req, res) => {
  * @desc Get a co-working space by ID.
  * @access Public
  */
-const getCoWorkingSpaceById = async (req, res) => {
+const getCoWorkingSpaceById = async (req: Request, res: Response) => {
   try {
     const coWorkingSpace = await CoWorkingSpace.findById(req.params.id);
     if (!coWorkingSpace) {
@@ -29,7 +30,7 @@ const getCoWorkingSpaceById = async (req, res) => {
     }
     res.status(200).json({ success: true, data: coWorkingSpace });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: (err as Error).message });
   }
 };
 
@@ -38,18 +39,12 @@ const getCoWorkingSpaceById = async (req, res) => {
  * @desc Create a new co-working space.
  * @access Private (Admin)
  */
-const createCoWorkingSpace = async (req, res) => {
+const createCoWorkingSpace = async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== "admin") {
-      return res
-        .status(403)
-        .json({ success: false, message: "You're not an administrator." });
-    }
-
     const coWorkingSpace = await CoWorkingSpace.create(req.body);
     res.status(201).json({ success: true, data: coWorkingSpace });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: (err as Error).message });
   }
 };
 
@@ -58,14 +53,8 @@ const createCoWorkingSpace = async (req, res) => {
  * @desc Update a co-working space by ID.
  * @access Private (Admin)
  */
-const updateCoWorkingSpace = async (req, res) => {
+const updateCoWorkingSpace = async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== "admin") {
-      return res
-        .status(403)
-        .json({ success: false, message: "You're not an administrator." });
-    }
-
     const coWorkingSpace = await CoWorkingSpace.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -81,7 +70,7 @@ const updateCoWorkingSpace = async (req, res) => {
     }
     res.status(200).json({ success: true, data: coWorkingSpace });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: (err as Error).message });
   }
 };
 
@@ -90,15 +79,8 @@ const updateCoWorkingSpace = async (req, res) => {
  * @desc Delete a co-working space by ID.
  * @access Private (Admin)
  */
-const deleteCoWorkingSpace = async (req, res) => {
+const deleteCoWorkingSpace = async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== "admin") {
-      res
-        .status(403)
-        .json({ success: false, message: "You're not an administrator." });
-      return;
-    }
-
     const coWorkingSpace = await CoWorkingSpace.findByIdAndDelete(
       req.params.id
     );
@@ -110,11 +92,11 @@ const deleteCoWorkingSpace = async (req, res) => {
     }
     res.status(200).json({ success: true, data: coWorkingSpace });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: (err as Error).message });
   }
 };
 
-module.exports = {
+export {
   createCoWorkingSpace,
   getCoWorkingSpaces,
   getCoWorkingSpaceById,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const FeedBackSchema = new mongoose.Schema({
   coWorkingSpace: {
@@ -9,30 +9,28 @@ const FeedBackSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
-    requried: true,
+    required: true,
   },
 
   feedBackString: {
     type: String,
-    // required: [true, "Please add some feedback"],
     default: "",
   },
 
   rating: {
-    type: Number, // Change to Number type
+    type: Number,
     required: [true, "Please provide a rating score between 0 - 5"],
-    min: 0, // Minimum value
-    max: 5, // Maximum value
+    min: 0,
+    max: 5,
     validate: {
-      validator: Number.isInteger, // Ensure it's an integer
+      validator: Number.isInteger,
       message: "Rating must be an integer",
     },
-    // default: 0,
   },
-  cretedAt: {
+  createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now(),
   },
 });
 
-module.exports = mongoose.model("feedBack", FeedBackSchema);
+export default mongoose.model("FeedBack", FeedBackSchema);

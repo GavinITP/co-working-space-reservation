@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const CoworkingSpaceSchema = new mongoose.Schema({
+const CoWorkingSpaceSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please add a name for the co-working space"],
@@ -32,23 +32,4 @@ const CoworkingSpaceSchema = new mongoose.Schema({
   },
 });
 
-//Cascade Delete Feedback when a co-working-apace is deleted
-CoworkingSpaceSchema.pre(
-  "deleteOne",
-  { document: true, query: false },
-  async function (next) {
-    console.log(`Feed back are being remove from co-working-apace ${this._id}`);
-    await this.model("feedback").deleteMany({ coWorkingSpace: this._id });
-    next();
-  }
-);
-
-// Reverse populate with virtuals
-CoworkingSpaceSchema.virtual("feedback", {
-  ref: "feedback",
-  localField: "_id",
-  foreignField: "coWorkingSpace",
-  justOne: false,
-});
-
-module.exports = mongoose.model("CoworkingSpace", CoworkingSpaceSchema);
+export default mongoose.model("CoWorkingSpace", CoWorkingSpaceSchema);
