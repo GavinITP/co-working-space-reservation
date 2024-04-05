@@ -1,35 +1,27 @@
-const CoWorkingSpace = require("../models/coWorkingSpace");
+import { CoWorkingSpaceType } from "../types";
 
-// Check if reservation time falls within co-working space opening hours.
-const validateReservationTime = (coWorkingSpace, date, startTime, endTime) => {
-  const openingTime = new Date(
-    `${date.split("-").reverse().join("-")}T${coWorkingSpace.openingTime}`
-  );
-  const closingTime = new Date(
-    `${date.split("-").reverse().join("-")}T${coWorkingSpace.closingTime}`
-  );
-  const reservationStartDateTime = new Date(
-    `${date.split("-").reverse().join("-")}T${startTime}`
-  );
-  const reservationEndDateTime = new Date(
-    `${date.split("-").reverse().join("-")}T${endTime}`
-  );
+const parseDateTime = (date: string, time: string): Date => {
+  const [year, month, day] = date.split("-").map(Number);
+  const [hours, minutes] = time.split(":").map(Number);
+  return new Date(year, month - 1, day, hours, minutes);
+};
 
-  return (
+const validateReservationTime = (
+  coWorkingSpace: CoWorkingSpaceType,
+  date: string,
+  startTime: string,
+  endTime: string
+): boolean => {
+  const openingTime = parseDateTime(date, coWorkingSpace.openingTime);
+  const closingTime = parseDateTime(date, coWorkingSpace.closingTime);
+  const reservationStartDateTime = parseDateTime(date, startTime);
+  const reservationEndDateTime = parseDateTime(date, endTime);
+
+  const isWithinTimeRange =
     reservationStartDateTime >= openingTime &&
-    reservationEndDateTime <= closingTime
-  );
+    reservationEndDateTime <= closingTime;
+
+  return isWithinTimeRange;
 };
 
-// Find the co-working space using id
-const findCoWorkingSpace = async (coWorkingSpaceId) => {
-  const coWorkingSpace = await CoworkingSpace.findById(coWorkingSpaceId);
-  if (!coWorkingSpace) {
-    return res
-      .status(404)
-      .json({ success: false, error: "Co-working space not found" });
-  }
-  return coWorkingSpace;
-};
-
-module.exports = { validateReservationTime, findCoWorkingSpace };
+export default validateReservationTime;

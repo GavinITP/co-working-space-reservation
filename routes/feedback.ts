@@ -1,16 +1,13 @@
-const express = require("express");
-
-const {
+import { Router } from "express";
+import {
   getFeedback,
   getFeedbacks,
   updateFeedback,
   addFeedback,
   deleteFeedback,
-} = require("../controllers/feedback");
+} from "../controllers/feedBack";
 
-const { createFeedback } = require("../controllers/feedback");
-
-const router = express.Router({ mergeParams: true });
+const router: Router = Router({ mergeParams: true });
 
 const protect = require("../middleware/auth");
 
@@ -19,9 +16,8 @@ router.route("/").get(protect, getFeedbacks).post(protect, addFeedback);
 router
   .route("/:id")
   .get(protect, getFeedback)
+  .post(protect, addFeedback)
   .put(protect, updateFeedback)
   .delete(protect, deleteFeedback);
 
-// router.route("/test/").post(createFeedback);
-
-module.exports = router;
+export default router;

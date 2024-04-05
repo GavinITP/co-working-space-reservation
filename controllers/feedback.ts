@@ -1,120 +1,78 @@
-const coWorkingSpace = require("../models/coWorkingSpace");
-const FeedBack = require("../models/feedback");
+import { Request, Response } from "express";
+import coWorkingSpace from "../models/coWorkingSpace";
+import FeedBack from "../models/feedBack";
 
-//@desc     Get all feedback
-//@route    GET api/v1/feedbacks
-//@access   Public
+const getFeedbacks = async (req: Request, res: Response) => {
+  try {
+    let query = FeedBack.find();
 
-exports.getFeedbacks = async (req, res, next) => {
-  let query;
+    if (req.user.role !== "admin") {
+      query = FeedBack.find({ user: req.user.id });
+    } else if (req.params.coWorkingSpaceId) {
+      query = FeedBack.find({ coWorkingSpace: req.params.coWorkingSpaceId });
+    }
 
-  // General User can see only their appointments!
-  if (req.user.role !== "admin") {
-    console.log(req.user.name);
-    query = FeedBack.find({ user: req.user.id }).populate({
+    const feedbackData = await query.populate({
       path: "coWorkingSpace",
       select: "name address telephone",
     });
-    // console.log(query)
-  } else {
-    // Admin can see all
-    if (req.params.coWorkingSpaceId) {
-      let coWorkId = req.params.coWorkingSpaceId;
-
-      query = FeedBack.find({ coWorkingSpace: coWorkId }).populate({
-        path: "coWorkingSpace",
-        select: "name address telephone",
-      });
-    } else {
-      query = FeedBack.find().populate({
-        path: "coWorkingSpace",
-        select: "name address telephone",
-      });
-    }
-  }
-
-  try {
-    const FeedBackData = await query;
 
     res.status(200).json({
       success: true,
-      count: FeedBackData.length,
-      data: FeedBackData,
+      count: feedbackData.length,
+      data: feedbackData,
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
+  } catch (err: any) {
+    res.status(500).json({
       success: false,
-      message: "Cannot find feedback",
+      message: err.message || "Cannot find feedback",
     });
   }
 };
 
-//@desc     Get single feedback
-//@route    GET api/v1/feedbacks/:id
-//@access   Public
-
-exports.getFeedback = async (req, res, next) => {
+const getFeedback = async (req: Request, res: Response) => {
   try {
-    let fid = req.params.id;
-    const feedback = await FeedBack.findById(fid).populate({
+    const feedback = await FeedBack.findById(req.params.id).populate({
       path: "coWorkingSpace",
       select: "name address telephone",
     });
 
-    if (!feedback) {
-      return res
-        .status(404)
-        .json({ success: false, message: `No feedback with the id of ${fid}` });
-    }
-
     res.status(200).json({
       success: true,
-      data: feedback,
+      data: feedback || `No feedback with the id of ${req.params.id}`,
     });
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, massage: "Cannot find feedback" });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message || "Cannot find feedback",
+    });
   }
 };
 
-//@desc     Add a feedback
-//@route    POST api/v1/co-working-space/:coWorkingSpaceId/feedbacks
-//@access   Private
-
-exports.addFeedback = async (req, res, next) => {
-  console.log("1");
+const addFeedback = async (req: Request, res: Response) => {
   try {
-    console.log("2");
+    const { coWorkingSpaceId } = req.params;
 
-    const cwsid = req.params.coWorkingSpaceId;
+    if (req.user.role !== "admin") {
+      const feedbackExists = await FeedBack.exists({ user: req.user.id });
+      if (feedbackExists) {
+        return res.status(400).json({
+          success: false,
+          message: `The user with id ${req.user.id} has already made a feedback.`,
+        });
+      }
+    }
 
-    req.body.coWorkingSpace = cwsid;
-
-    // Check if co-working-space exists
-    const CWSpace = await coWorkingSpace.findById(cwsid);
-
+    const CWSpace = await coWorkingSpace.findById(coWorkingSpaceId);
     if (!CWSpace) {
       return res.status(404).json({
         success: false,
-        message: `No co-working-space with the id of ${cwsid}`,
+        message: `No co-working-space with the id of ${coWorkingSpaceId}`,
       });
     }
 
-    // Add user Id to req.body
+    req.body.coWorkingSpace = coWorkingSpaceId;
     req.body.user = req.user.id;
-
-    const existedFeedback = await FeedBack.find({ user: req.user.id });
-
-    // User can feedback a co-working-space only single time
-    if (existedFeedback.length >= 1 && req.user.role !== "admin") {
-      return res.status(400).json({
-        success: false,
-        message: `The user with id ${req.user.id} has already made a feedback to co-working-space with id ${cwsid}`,
-      });
-    }
 
     const newFeedback = await FeedBack.create(req.body);
 
@@ -122,105 +80,87 @@ exports.addFeedback = async (req, res, next) => {
       success: true,
       data: newFeedback,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: "Cannot create new Feedback",
+      message: err.message || "Cannot create new Feedback",
     });
   }
 };
 
-//@desc     Update a feedback
-//@route    PUT api/v1/co-working-space/:co-working-spaceId/feedback
-
-exports.updateFeedback = async (req, res, next) => {
+const updateFeedback = async (req: Request, res: Response) => {
   try {
-    const fid = req.params.id;
-    const user = req.user;
-
-    //check if feedback existed
-
-    let feedback = await FeedBack.findById(fid);
+    const { id } = req.params;
+    const feedback = await FeedBack.findById(id);
 
     if (!feedback) {
-      return res
-        .status(404)
-        .json({ success: false, massage: `No feedback with the id of ${fid}` });
-    }
-    //make sure if user is the appointment owner
-    if (feedback.user.toString() !== user.id && user.role !== "admin") {
       return res.status(404).json({
         success: false,
-        massage: `User ${user.id} is not authorized to update this feedback`,
+        message: `No feedback with the id of ${id}`,
       });
     }
 
-    feedback = await FeedBack.findByIdAndUpdate(fid, req.body, {
+    if (feedback.user.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(404).json({
+        success: false,
+        message: `User ${req.user.id} is not authorized to update this feedback`,
+      });
+    }
+
+    const updatedFeedback = await FeedBack.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
 
     res.status(200).json({
       success: true,
-      data: feedback,
+      data: updatedFeedback,
     });
-  } catch (error) {
-    console.log(error);
-
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      massage: "Cannot update Feedback",
+      message: err.message || "Cannot update Feedback",
     });
   }
 };
 
-//@desc     Delete a feedback
-//@route    DELETE api/v1/co-working-space/:co-working-spaceId/feedback
-//@access   Private
-
-exports.deleteFeedback = async (req, res, next) => {
+const deleteFeedback = async (req: Request, res: Response) => {
   try {
-    const fid = req.params.id;
-    const user = req.user;
-
-    const feedback = await FeedBack.findById(fid);
+    const { id } = req.params;
+    const feedback = await FeedBack.findById(id);
 
     if (!feedback) {
       return res.status(404).json({
         success: false,
-        massage: `No appointment with the id of ${apptid}`,
+        message: `No feedback with the id of ${id}`,
       });
     }
 
-    //make sure if user is the feedback owner
-    if (feedback.user.toString() !== user.id && user.role !== "admin") {
+    if (feedback.user.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(404).json({
         success: false,
-        massage: `User ${user.id} is not authorized to delete this bootcamp`,
+        message: `User ${req.user.id} is not authorized to delete this feedback`,
       });
     }
+
     await feedback.deleteOne();
 
     res.status(200).json({
       success: true,
       data: {},
     });
-  } catch (error) {
-    console.log(error);
-
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      massage: "Cannot delete feedback",
+      message: err.message || "Cannot delete feedback",
     });
   }
 };
 
-// ======================== tester =========================
-
-// exports.createFeedback = async (req, res, next) => {
-//   // console.log(req.body);
-//   // res.status(200).json({success: true , msg:`Create new hospitals`});
-//   const feedback = await FeedBack.create(req.body);
-//   res.status(200).json({ success: true, data: feedback });
-// };
+export {
+  getFeedbacks,
+  getFeedback,
+  addFeedback,
+  updateFeedback,
+  deleteFeedback,
+};

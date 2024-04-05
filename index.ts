@@ -1,17 +1,17 @@
 // libraries
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
 
 // config
-const connectDB = require("./config/connectDB");
+import connectDB from "./config/connectDB";
 
 // routes
-const auth = require("./routes/auth");
-const coWorkingSpace = require("./routes/coWorkingSpace");
-const feedBack = require("./routes/feedback");
-const reservation = require("./routes/reservation");
+import auth from "./routes/auth";
+import coWorkingSpace from "./routes/coWorkingSpace";
+import feedBack from "./routes/feedBack";
+import reservation from "./routes/reservation";
 
 // set up
 dotenv.config({ path: "./config/.env" });
@@ -30,5 +30,7 @@ app.use("/api/v1/co-working-space", coWorkingSpace);
 app.use("/api/v1/feedbacks", feedBack);
 app.use("/api/v1/reservation", reservation);
 
-const port = process.env.PORT;
-app.listen(port, console.log("Server is running on port:", port));
+const port = process.env.PORT || 9000;
+app.listen(port, () => {
+  console.log("Server is running on port:", port);
+});

@@ -1,17 +1,19 @@
-const express = require("express");
-const {
+import { authorize } from "../middleware/auth";
+
+import express from "express";
+import {
   getReservations,
   createReservation,
   updateReservation,
   deleteReservation,
-} = require("../controllers/reservation");
-const protect = require("../middleware/auth");
+} from "../controllers/reservation";
+import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
 router.get("/", protect, getReservations);
-router.post("/", protect, createReservation);
+router.post("/", protect, authorize(["user"]), createReservation);
 router.put("/:id", protect, updateReservation);
 router.delete("/:id", protect, deleteReservation);
 
-module.exports = router;
+export default router;

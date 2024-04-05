@@ -1,24 +1,23 @@
-const express = require("express");
-const {
+import express, { Router } from "express";
+import {
   createCoWorkingSpace,
   getCoWorkingSpaces,
   getCoWorkingSpaceById,
   updateCoWorkingSpace,
   deleteCoWorkingSpace,
-} = require("../controllers/coWorkingSpace");
-const protect = require("../middleware/auth");
+} from "../controllers/coWorkingSpace";
+import { protect, authorize } from "../middleware/auth";
+import feedBack from "./feedBack";
 
-const feedbackRouter = require("./feedback");
-
-const router = express.Router();
+const router: Router = express.Router();
 
 // Re-route into other resource router
-router.use("/:coWorkingSpaceId/feedbacks/", feedbackRouter);
+router.use("/:coWorkingSpaceId/feedbacks/", feedBack);
 
 router.get("/", getCoWorkingSpaces);
 router.get("/:id", getCoWorkingSpaceById);
-router.post("/", protect, createCoWorkingSpace);
-router.put("/:id", protect, updateCoWorkingSpace);
-router.delete("/:id", protect, deleteCoWorkingSpace);
+router.post("/", protect, authorize(["admin"]), createCoWorkingSpace);
+router.put("/:id", protect, authorize(["admin"]), updateCoWorkingSpace);
+router.delete("/:id", protect, authorize(["admin"]), deleteCoWorkingSpace);
 
-module.exports = router;
+export default router;
