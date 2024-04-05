@@ -1,27 +1,41 @@
 import { CoWorkingSpaceType } from "../types";
-
-const parseDateTime = (date: string, time: string): Date => {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hours, minutes] = time.split(":").map(Number);
-  return new Date(year, month - 1, day, hours, minutes);
-};
+import { parse, isBefore, isAfter, isEqual } from "date-fns";
 
 const validateReservationTime = (
   coWorkingSpace: CoWorkingSpaceType,
-  date: string,
   startTime: string,
   endTime: string
 ): boolean => {
-  const openingTime = parseDateTime(date, coWorkingSpace.openingTime);
-  const closingTime = parseDateTime(date, coWorkingSpace.closingTime);
-  const reservationStartDateTime = parseDateTime(date, startTime);
-  const reservationEndDateTime = parseDateTime(date, endTime);
+  let conditionOne = true;
+  let conditionTwo = true;
 
-  const isWithinTimeRange =
-    reservationStartDateTime >= openingTime &&
-    reservationEndDateTime <= closingTime;
+  if (startTime) {
+    const reservationStartDateTime = parse(startTime, "HH:mm:ss", new Date());
+    const openingTime = parse(
+      coWorkingSpace.openingTime,
+      "HH:mm:ss",
+      new Date()
+    );
 
-  return isWithinTimeRange;
+    conditionOne =
+      isAfter(reservationStartDateTime, openingTime) ||
+      isEqual(reservationStartDateTime, openingTime);
+  }
+
+  if (endTime) {
+    const reservationEndDateTime = parse(endTime, "HH:mm:ss", new Date());
+    const closingTime = parse(
+      coWorkingSpace.closingTime,
+      "HH:mm:ss",
+      new Date()
+    );
+
+    conditionTwo =
+      isBefore(reservationEndDateTime, closingTime) ||
+      isEqual(reservationEndDateTime, closingTime);
+  }
+
+  return conditionOne && conditionTwo;
 };
 
 export default validateReservationTime;
