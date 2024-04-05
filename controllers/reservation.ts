@@ -35,7 +35,7 @@ const createReservation = async (req: Request, res: Response) => {
         .json({ success: false, error: "Co-working space not found" });
     }
 
-    if (!validateReservationTime(coWorkingSpace, date, startTime, endTime)) {
+    if (!validateReservationTime(coWorkingSpace, startTime, endTime)) {
       return res.status(400).json({
         success: false,
         error: "Reservation time is outside of co-working space opening hours",
@@ -63,7 +63,7 @@ const createReservation = async (req: Request, res: Response) => {
  */
 const updateReservation = async (req: Request, res: Response) => {
   try {
-    const { coWorkingSpaceId, startDate, startTime, endTime } = req.body;
+    const { date, startTime, endTime } = req.body;
     const reservation = await Reservation.findById(req.params.id);
 
     if (!reservation) {
@@ -82,26 +82,26 @@ const updateReservation = async (req: Request, res: Response) => {
       });
     }
 
-    const coWorkingSpace = await CoWorkingSpace.findById(coWorkingSpaceId);
+    const coWorkingSpace = await CoWorkingSpace.findById(
+      reservation.coWorkingSpace
+    );
     if (!coWorkingSpace) {
       return res
         .status(404)
         .json({ success: false, error: "Co-working space not found" });
     }
 
-    if (
-      !validateReservationTime(coWorkingSpace, startDate, startTime, endTime)
-    ) {
+    if (!validateReservationTime(coWorkingSpace, startTime, endTime)) {
       return res.status(400).json({
         success: false,
-        error: "Reservation time is outside of co-working space opening hours",
+        error: "Reservation time isn't within range of opening hours",
       });
     }
 
     const updatedReservation = await Reservation.findByIdAndUpdate(
       req.params.id,
       {
-        date: new Date(`${startDate}T${startTime}`),
+        date,
         startTime,
         endTime,
       },
