@@ -4,9 +4,16 @@ import FeedBack from "../models/feedBack";
 
 const getFeedbacks = async (req: Request, res: Response) => {
   try {
+    if (!req.user || !req.user.role) {
+      throw new Error("User role is missing.");
+    }
+
     let query = FeedBack.find();
 
     if (req.user.role !== "admin") {
+      if (!req.user.id) {
+        throw new Error("User ID is missing.");
+      }
       query = FeedBack.find({ user: req.user.id });
     } else if (req.params.coWorkingSpaceId) {
       query = FeedBack.find({ coWorkingSpace: req.params.coWorkingSpaceId });
@@ -17,7 +24,7 @@ const getFeedbacks = async (req: Request, res: Response) => {
       select: "name address telephone",
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       count: feedbackData.length,
       data: feedbackData,
