@@ -10,7 +10,7 @@ import connectDB from "./config/connectDB";
 // routes
 import auth from "./routes/auth";
 import coWorkingSpace from "./routes/coWorkingSpace";
-import feedBack from "./routes/feedBack";
+import feedback from "./routes/feedback";
 import reservation from "./routes/reservation";
 
 // set up
@@ -27,8 +27,8 @@ app.use(cors());
 // routes
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/co-working-space", coWorkingSpace);
-app.use("/api/v1/feedbacks", feedBack);
-app.use("/api/v1/reservation", reservation);
+app.use("/api/v1/feedbacks", feedback);
+app.use("/api/v1/reservations", reservation);
 
 const port = process.env.PORT || 9000;
 app.listen(port, () => {

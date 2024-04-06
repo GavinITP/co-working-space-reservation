@@ -5,7 +5,7 @@ import {
   updateFeedback,
   addFeedback,
   deleteFeedback,
-} from "../controllers/feedBack";
+} from "../controllers/feedback";
 import { protect } from "../middleware/auth";
 
 const router = express.Router({ mergeParams: true });

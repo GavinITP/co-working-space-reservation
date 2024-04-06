@@ -7,7 +7,7 @@ import {
   deleteCoWorkingSpace,
 } from "../controllers/coWorkingSpace";
 import { protect, authorize } from "../middleware/auth";
-import feedBack from "./feedBack";
+import feedBack from "./feedback";
 
 const router: Router = express.Router();
 
