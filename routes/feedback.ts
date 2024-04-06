@@ -6,14 +6,14 @@ import {
   addFeedback,
   deleteFeedback,
 } from "../controllers/feedback";
-import { protect } from "../middleware/auth";
+import { protect, authorize } from "../middleware/auth";
 
 const router = express.Router({ mergeParams: true });
 
 router.get("/", protect, getFeedbacks);
 router.get("/:id", protect, getFeedback);
-router.post("/", protect, addFeedback);
-router.put("/:id", protect, updateFeedback);
-router.delete("/:id", protect, deleteFeedback);
+router.post("/", protect, authorize(["admin", "user"]), addFeedback);
+router.put("/:id", protect, authorize(["admin", "user"]), updateFeedback);
+router.delete("/:id", protect, authorize(["admin"]), deleteFeedback);
 
 export default router;

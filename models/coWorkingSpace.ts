@@ -32,4 +32,23 @@ const CoWorkingSpaceSchema = new mongoose.Schema({
   },
 });
 
+//Cascade Delete appointments when a hospital is deleted
+CoWorkingSpaceSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    console.log(`Feedbacks being remove from co-working space ${this._id}`);
+    await this.model("feedback").deleteMany({ coWorkingSpace: this._id });
+    next();
+  }
+);
+
+// Reverse populate with virtuals
+CoWorkingSpaceSchema.virtual("appointments", {
+  ref: "Feedback",
+  localField: "_id",
+  foreignField: "coWorkingSpace",
+  justOne: false,
+});
+
 export default mongoose.model("CoWorkingSpace", CoWorkingSpaceSchema);

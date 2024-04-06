@@ -90,7 +90,7 @@ const getFeedback = async (req: Request, res: Response) => {
 const addFeedback = async (req: Request, res: Response) => {
   try {
     const cwsid = req.params.coWorkingSpaceId;
-    req.body.CoWorkingSpace = cwsid;
+    req.body.coWorkingSpace = cwsid;
 
     // Check if co-working-space exists
     const CWSpace = await CoWorkingSpace.findById(cwsid);
