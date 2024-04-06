@@ -14,6 +14,6 @@ router.get("/", protect, getFeedbacks);
 router.get("/:id", protect, getFeedback);
 router.post("/", protect, addFeedback);
 router.put("/:id", protect, updateFeedback);
-router.delete("/:id", protect, authorize(["admin"]), deleteFeedback);
+router.delete("/:id", protect, deleteFeedback);
 
 export default router;
