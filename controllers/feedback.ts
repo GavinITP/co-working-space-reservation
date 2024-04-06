@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import coWorkingSpace from "../models/coWorkingSpace";
 import Feedback from "../models/feedback";
 
+//@desc     Get all feedback
+//@route    GET api/v1/feedbacks
+//@access   Public
 const getFeedbacks = async (req: Request, res: Response) => {
   let query;
 
@@ -47,6 +50,9 @@ const getFeedbacks = async (req: Request, res: Response) => {
   }
 };
 
+//@desc     Get single feedback
+//@route    GET api/v1/feedbacks/:id
+//@access   Public
 const getFeedback = async (req: Request, res: Response) => {
   try {
     let fid = req.params.id;
@@ -73,6 +79,9 @@ const getFeedback = async (req: Request, res: Response) => {
   }
 };
 
+//@desc     Add a feedback
+//@route    POST api/v1/co-working-space/:coWorkingSpaceId/feedbacks
+//@access   Private
 const addFeedback = async (req: Request, res: Response) => {
   try {
     const cwsid = req.params.coWorkingSpaceId;
@@ -116,6 +125,9 @@ const addFeedback = async (req: Request, res: Response) => {
   }
 };
 
+//@desc     Update a feedback
+//@route    PUT api/v1/co-working-space/:co-working-spaceId/feedback
+//@access   Private
 const updateFeedback = async (req: Request, res: Response) => {
   try {
     const fid = req.params.id;
@@ -157,6 +169,9 @@ const updateFeedback = async (req: Request, res: Response) => {
   }
 };
 
+//@desc     Delete a feedback
+//@route    DELETE api/v1/co-working-space/:co-working-spaceId/feedback
+//@access   Private
 const deleteFeedback = async (req: Request, res: Response) => {
   try {
     const fid = req.params.id;
