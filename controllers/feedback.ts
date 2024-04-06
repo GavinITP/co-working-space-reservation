@@ -7,49 +7,29 @@ import Feedback from "../models/feedback";
 //@access   Public
 const getFeedbacks = async (req: Request, res: Response) => {
   try {
-    let query;
+    let query = Feedback.find();
 
-    // General User can see only their appointments!
+    // If the user is not an admin, filter feedbacks by user ID
     if (req.user.role !== "admin") {
-      console.log(req.user.name);
-      query = Feedback.find({ user: req.user.id }).populate({
-        path: "coWorkingSpace",
-        model: CoWorkingSpace,
-        select: "name address telephone",
-      });
-      // console.log(query)
-    } else {
-      // Admin can see all
-      if (req.params.coWorkingSpaceId) {
-        let coWorkId = req.params.coWorkingSpaceId;
-
-        query = Feedback.find({ coWorkingSpace: coWorkId }).populate({
-          path: "coWorkingSpace",
-          model: CoWorkingSpace,
-          select: "name address telephone",
-        });
-      } else {
-        query = Feedback.find().populate({
-          path: "coWorkingSpace",
-          model: CoWorkingSpace,
-          select: "name address telephone",
-        });
-      }
+      query = query.where({ user: req.user.id });
     }
 
-    const FeedBackData = await query;
-    // const FeedBackData = await Feedback.find();
+    const feedbackData = await query.populate({
+      path: "coWorkingSpace",
+      model: CoWorkingSpace,
+      select: "name address telephone",
+    });
 
     res.status(200).json({
       success: true,
-      count: FeedBackData.length,
-      data: FeedBackData,
+      count: feedbackData.length,
+      data: feedbackData,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching feedbacks:", error);
     return res.status(500).json({
       success: false,
-      message: "Cannot find feedback",
+      message: "Unable to fetch feedbacks",
     });
   }
 };
@@ -187,7 +167,7 @@ const deleteFeedback = async (req: Request, res: Response) => {
     if (!feedback) {
       return res.status(404).json({
         success: false,
-        massage: `No appointment with the id of ${fid}`,
+        massage: `No feedback with the id of ${fid}`,
       });
     }
 
@@ -195,7 +175,7 @@ const deleteFeedback = async (req: Request, res: Response) => {
     if (feedback.user.toString() !== user.id && user.role !== "admin") {
       return res.status(404).json({
         success: false,
-        massage: `User ${user.id} is not authorized to delete this bootcamp`,
+        massage: `User ${user.id} is not authorized to delete this feedback`,
       });
     }
     await feedback.deleteOne();

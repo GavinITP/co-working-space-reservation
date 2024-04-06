@@ -141,7 +141,11 @@ const deleteReservation = async (req: Request, res: Response) => {
 
     await Reservation.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ success: true, data: reservation });
+    res.status(200).json({
+      success: true,
+      data: {},
+      massage: `Reservation with id ${req.params.id} is now deleted.`,
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
