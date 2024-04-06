@@ -114,7 +114,7 @@ const addFeedback = async (req: Request, res: Response) => {
         message: `The user with id ${req.user.id} has already made a feedback to co-working-space with id ${cwsid}`,
       });
     }
-
+    console.log(req.body.feedbackString);
     const newFeedback = await Feedback.create(req.body);
 
     res.status(200).json({
