@@ -12,8 +12,8 @@ const router = express.Router({ mergeParams: true });
 
 router.get("/", protect, getFeedbacks);
 router.get("/:id", protect, getFeedback);
-router.post("/", protect, authorize(["admin", "user"]), addFeedback);
-router.put("/:id", protect, authorize(["admin", "user"]), updateFeedback);
+router.post("/", protect, addFeedback);
+router.put("/:id", protect, updateFeedback);
 router.delete("/:id", protect, authorize(["admin"]), deleteFeedback);
 
 export default router;
