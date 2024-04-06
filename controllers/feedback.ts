@@ -1,165 +1,195 @@
 import { Request, Response } from "express";
 import coWorkingSpace from "../models/coWorkingSpace";
-import FeedBack from "../models/feedBack";
+import Feedback from "../models/feedback";
 
 const getFeedbacks = async (req: Request, res: Response) => {
-  try {
-    if (!req.user || !req.user.role) {
-      throw new Error("User role is missing.");
-    }
+  let query;
 
-    let query = FeedBack.find();
-
-    if (req.user.role !== "admin") {
-      if (!req.user.id) {
-        throw new Error("User ID is missing.");
-      }
-      query = FeedBack.find({ user: req.user.id });
-    } else if (req.params.coWorkingSpaceId) {
-      query = FeedBack.find({ coWorkingSpace: req.params.coWorkingSpaceId });
-    }
-
-    const feedbackData = await query.populate({
+  // General User can see only their appointments!
+  if (req.user.role !== "admin") {
+    console.log(req.user.name);
+    query = Feedback.find({ user: req.user.id }).populate({
       path: "coWorkingSpace",
       select: "name address telephone",
     });
+    // console.log(query)
+  } else {
+    // Admin can see all
+    if (req.params.coWorkingSpaceId) {
+      let coWorkId = req.params.coWorkingSpaceId;
 
-    return res.status(200).json({
+      query = Feedback.find({ coWorkingSpace: coWorkId }).populate({
+        path: "coWorkingSpace",
+        select: "name address telephone",
+      });
+    } else {
+      query = Feedback.find().populate({
+        path: "coWorkingSpace",
+        select: "name address telephone",
+      });
+    }
+  }
+
+  try {
+    const FeedBackData = await query;
+
+    res.status(200).json({
       success: true,
-      count: feedbackData.length,
-      data: feedbackData,
+      count: FeedBackData.length,
+      data: FeedBackData,
     });
-  } catch (err: any) {
-    res.status(500).json({
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       success: false,
-      message: err.message || "Cannot find feedback",
+      message: "Cannot find feedback",
     });
   }
 };
 
 const getFeedback = async (req: Request, res: Response) => {
   try {
-    const feedback = await FeedBack.findById(req.params.id).populate({
+    let fid = req.params.id;
+    const feedback = await Feedback.findById(fid).populate({
       path: "coWorkingSpace",
       select: "name address telephone",
     });
 
+    if (!feedback) {
+      return res
+        .status(404)
+        .json({ success: false, message: `No feedback with the id of ${fid}` });
+    }
+
     res.status(200).json({
       success: true,
-      data: feedback || `No feedback with the id of ${req.params.id}`,
+      data: feedback,
     });
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message || "Cannot find feedback",
-    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ success: false, massage: "Cannot find feedback" });
   }
 };
 
 const addFeedback = async (req: Request, res: Response) => {
   try {
-    const { coWorkingSpaceId } = req.params;
+    const cwsid = req.params.coWorkingSpaceId;
+    req.body.coWorkingSpace = cwsid;
 
-    if (req.user.role !== "admin") {
-      const feedbackExists = await FeedBack.exists({ user: req.user.id });
-      if (feedbackExists) {
-        return res.status(400).json({
-          success: false,
-          message: `The user with id ${req.user.id} has already made a feedback.`,
-        });
-      }
-    }
+    // Check if co-working-space exists
+    const CWSpace = await coWorkingSpace.findById(cwsid);
 
-    const CWSpace = await coWorkingSpace.findById(coWorkingSpaceId);
     if (!CWSpace) {
       return res.status(404).json({
         success: false,
-        message: `No co-working-space with the id of ${coWorkingSpaceId}`,
+        message: `No co-working-space with the id of ${cwsid}`,
       });
     }
 
-    req.body.coWorkingSpace = coWorkingSpaceId;
+    // Add user Id to req.body
     req.body.user = req.user.id;
 
-    const newFeedback = await FeedBack.create(req.body);
+    const existedFeedback = await Feedback.find({ user: req.user.id });
+
+    // User can feedback a co-working-space only single time
+    if (existedFeedback.length >= 1 && req.user.role !== "admin") {
+      return res.status(400).json({
+        success: false,
+        message: `The user with id ${req.user.id} has already made a feedback to co-working-space with id ${cwsid}`,
+      });
+    }
+
+    const newFeedback = await Feedback.create(req.body);
 
     res.status(200).json({
       success: true,
       data: newFeedback,
     });
-  } catch (err: any) {
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
-      message: err.message || "Cannot create new Feedback",
+      message: "Cannot create new Feedback",
     });
   }
 };
 
 const updateFeedback = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const feedback = await FeedBack.findById(id);
+    const fid = req.params.id;
+    const user = req.user;
+
+    //check if feedback existed
+
+    let feedback = await Feedback.findById(fid);
 
     if (!feedback) {
+      return res
+        .status(404)
+        .json({ success: false, massage: `No feedback with the id of ${fid}` });
+    }
+    //make sure if user is the appointment owner
+    if (feedback.user.toString() !== user.id && user.role !== "admin") {
       return res.status(404).json({
         success: false,
-        message: `No feedback with the id of ${id}`,
+        massage: `User ${user.id} is not authorized to update this feedback`,
       });
     }
 
-    if (feedback.user.toString() !== req.user.id && req.user.role !== "admin") {
-      return res.status(404).json({
-        success: false,
-        message: `User ${req.user.id} is not authorized to update this feedback`,
-      });
-    }
-
-    const updatedFeedback = await FeedBack.findByIdAndUpdate(id, req.body, {
+    feedback = await Feedback.findByIdAndUpdate(fid, req.body, {
       new: true,
       runValidators: true,
     });
 
     res.status(200).json({
       success: true,
-      data: updatedFeedback,
+      data: feedback,
     });
-  } catch (err: any) {
+  } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       success: false,
-      message: err.message || "Cannot update Feedback",
+      massage: "Cannot update Feedback",
     });
   }
 };
 
 const deleteFeedback = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const feedback = await FeedBack.findById(id);
+    const fid = req.params.id;
+    const user = req.user;
+
+    const feedback = await Feedback.findById(fid);
 
     if (!feedback) {
       return res.status(404).json({
         success: false,
-        message: `No feedback with the id of ${id}`,
+        massage: `No appointment with the id of ${fid}`,
       });
     }
 
-    if (feedback.user.toString() !== req.user.id && req.user.role !== "admin") {
+    //make sure if user is the feedback owner
+    if (feedback.user.toString() !== user.id && user.role !== "admin") {
       return res.status(404).json({
         success: false,
-        message: `User ${req.user.id} is not authorized to delete this feedback`,
+        massage: `User ${user.id} is not authorized to delete this bootcamp`,
       });
     }
-
     await feedback.deleteOne();
 
     res.status(200).json({
       success: true,
       data: {},
     });
-  } catch (err: any) {
+  } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       success: false,
-      message: err.message || "Cannot delete feedback",
+      massage: "Cannot delete feedback",
     });
   }
 };

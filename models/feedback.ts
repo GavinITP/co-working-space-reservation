@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const FeedBackSchema = new mongoose.Schema({
+const FeedbackSchema = new mongoose.Schema({
   coWorkingSpace: {
     type: mongoose.Schema.ObjectId,
     ref: "coWorkingSpace",
@@ -12,7 +12,7 @@ const FeedBackSchema = new mongoose.Schema({
     required: true,
   },
 
-  feedBackString: {
+  feedbackString: {
     type: String,
     default: "",
   },
@@ -33,4 +33,4 @@ const FeedBackSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("FeedBack", FeedBackSchema);
+export default mongoose.model("Feedback", FeedbackSchema);
