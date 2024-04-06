@@ -1,40 +1,44 @@
 import { Request, Response } from "express";
-import coWorkingSpace from "../models/coWorkingSpace";
+import CoWorkingSpace from "../models/coWorkingSpace";
 import Feedback from "../models/feedback";
 
 //@desc     Get all feedback
 //@route    GET api/v1/feedbacks
 //@access   Public
 const getFeedbacks = async (req: Request, res: Response) => {
-  let query;
-
-  // General User can see only their appointments!
-  if (req.user.role !== "admin") {
-    console.log(req.user.name);
-    query = Feedback.find({ user: req.user.id }).populate({
-      path: "coWorkingSpace",
-      select: "name address telephone",
-    });
-    // console.log(query)
-  } else {
-    // Admin can see all
-    if (req.params.coWorkingSpaceId) {
-      let coWorkId = req.params.coWorkingSpaceId;
-
-      query = Feedback.find({ coWorkingSpace: coWorkId }).populate({
-        path: "coWorkingSpace",
-        select: "name address telephone",
-      });
-    } else {
-      query = Feedback.find().populate({
-        path: "coWorkingSpace",
-        select: "name address telephone",
-      });
-    }
-  }
-
   try {
+    let query;
+
+    // General User can see only their appointments!
+    if (req.user.role !== "admin") {
+      console.log(req.user.name);
+      query = Feedback.find({ user: req.user.id }).populate({
+        path: "coWorkingSpace",
+        model: CoWorkingSpace,
+        select: "name address telephone",
+      });
+      // console.log(query)
+    } else {
+      // Admin can see all
+      if (req.params.coWorkingSpaceId) {
+        let coWorkId = req.params.coWorkingSpaceId;
+
+        query = Feedback.find({ coWorkingSpace: coWorkId }).populate({
+          path: "coWorkingSpace",
+          model: CoWorkingSpace,
+          select: "name address telephone",
+        });
+      } else {
+        query = Feedback.find().populate({
+          path: "coWorkingSpace",
+          model: CoWorkingSpace,
+          select: "name address telephone",
+        });
+      }
+    }
+
     const FeedBackData = await query;
+    // const FeedBackData = await Feedback.find();
 
     res.status(200).json({
       success: true,
@@ -58,6 +62,7 @@ const getFeedback = async (req: Request, res: Response) => {
     let fid = req.params.id;
     const feedback = await Feedback.findById(fid).populate({
       path: "coWorkingSpace",
+      model: CoWorkingSpace,
       select: "name address telephone",
     });
 
@@ -88,12 +93,12 @@ const addFeedback = async (req: Request, res: Response) => {
     req.body.coWorkingSpace = cwsid;
 
     // Check if co-working-space exists
-    const CWSpace = await coWorkingSpace.findById(cwsid);
+    const CWSpace = await CoWorkingSpace.findById(cwsid);
 
     if (!CWSpace) {
       return res.status(404).json({
         success: false,
-        message: `No co-working-space with the id of ${cwsid}`,
+        message: `No co-working space with the id of ${cwsid}`,
       });
     }
 
@@ -106,10 +111,10 @@ const addFeedback = async (req: Request, res: Response) => {
     if (existedFeedback.length >= 1 && req.user.role !== "admin") {
       return res.status(400).json({
         success: false,
-        message: `The user with id ${req.user.id} has already made a feedback to co-working-space with id ${cwsid}`,
+        message: `The user with id ${req.user.id} has already made a feedback to co-working space with id ${cwsid}`,
       });
     }
-
+    // console.log(req.body.feedbackString);
     const newFeedback = await Feedback.create(req.body);
 
     res.status(200).json({

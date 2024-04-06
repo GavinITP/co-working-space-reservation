@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import feedback from "./feedback";
+
 const CoWorkingSpaceSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -30,6 +32,25 @@ const CoWorkingSpaceSchema = new mongoose.Schema({
     ],
     required: [true, "Please add the closing time for the co-working space"],
   },
+});
+
+//Cascade Delete feedback when a Co-working space is deleted
+CoWorkingSpaceSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    console.log(`Feedbacks being remove from co-working space ${this._id}`);
+    await feedback.deleteMany({ coWorkingSpace: this._id });
+    next();
+  }
+);
+
+// Reverse populate with virtuals
+CoWorkingSpaceSchema.virtual("appointments", {
+  ref: "Feedback",
+  localField: "_id",
+  foreignField: "coWorkingSpace",
+  justOne: false,
 });
 
 export default mongoose.model("CoWorkingSpace", CoWorkingSpaceSchema);

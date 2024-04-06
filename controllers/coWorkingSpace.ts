@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import CoWorkingSpace from "../models/coWorkingSpace";
+import feedback from "../models/feedback";
 
 /**
  * @route GET /api/v1/co-working-space
@@ -81,16 +82,21 @@ const updateCoWorkingSpace = async (req: Request, res: Response) => {
  */
 const deleteCoWorkingSpace = async (req: Request, res: Response) => {
   try {
-    const coWorkingSpace = await CoWorkingSpace.findByIdAndDelete(
-      req.params.id
-    );
+    const coWorkingSpace = await CoWorkingSpace.findById(req.params.id);
+    let cwsid = req.params.id;
     if (!coWorkingSpace) {
       res
         .status(404)
         .json({ success: false, message: "Co-working space not found." });
       return;
     }
-    res.status(200).json({ success: true, data: coWorkingSpace });
+
+    await coWorkingSpace.deleteOne();
+    res.status(200).json({
+      success: true,
+      data: {},
+      massage: `Co-working space ${cwsid} is now deleted.`,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message });
   }
