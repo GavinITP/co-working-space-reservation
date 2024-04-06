@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import CoWorkingSpace from "../models/coWorkingSpace";
-import feedback from "../models/feedback";
 
 /**
  * @route GET /api/v1/co-working-space

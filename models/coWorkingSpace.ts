@@ -34,7 +34,7 @@ const CoWorkingSpaceSchema = new mongoose.Schema({
   },
 });
 
-//Cascade Delete feedback when a Co-working space is deleted
+// Cascade Delete feedback when a Co-working space is deleted
 CoWorkingSpaceSchema.pre(
   "deleteOne",
   { document: true, query: false },
