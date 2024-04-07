@@ -14,8 +14,10 @@ declare global {
 const protect = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.header("Authorization")?.split(" ")[1];
 
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+  if (!token || token == "null") {
+    return res
+      .status(401)
+      .json({ message: "Not authorize to access this route" });
   }
 
   try {
