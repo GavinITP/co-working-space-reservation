@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 import feedback from "./feedback";
+import reservation from "./reservation";
 
 const CoWorkingSpaceSchema = new mongoose.Schema({
   name: {
@@ -39,8 +40,12 @@ CoWorkingSpaceSchema.pre(
   "deleteOne",
   { document: true, query: false },
   async function (next) {
-    console.log(`Feedbacks being remove from co-working space ${this._id}`);
+    // Delete feedbacks
+    console.log(`Feedbacks of co-working space ${this._id} is being delete`);
     await feedback.deleteMany({ coWorkingSpace: this._id });
+    // Delete reservations
+    console.log(`Reservations of co-working space ${this._id} is being delete`);
+    await reservation.deleteMany({ coWorkingSpace: this._id });
     next();
   }
 );

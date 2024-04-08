@@ -68,8 +68,11 @@ const getFeedback = async (req: Request, res: Response) => {
 //@access   Private
 const addFeedback = async (req: Request, res: Response) => {
   try {
-    const { coWorkingSpace } = req.body;
-    const cwsid = coWorkingSpace;
+    // const { coWorkingSpace } = req.body;
+    // const cwsid = coWorkingSpace;
+    const cwsid = req.params.coWorkingSpaceId;
+
+    req.body.coWorkingSpace = cwsid;
 
     // Check if co-working-space exists
     const CWSpace = await CoWorkingSpace.findById(cwsid);
