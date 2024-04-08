@@ -55,6 +55,17 @@ const createReservation = async (req: Request, res: Response) => {
         .json({ success: false, error: "Co-working space not found" });
     }
 
+    // Check if user already has three reservations
+    const userReservationCount = await Reservation.countDocuments({
+      user: req.user.id,
+    });
+    if (userReservationCount >= 3) {
+      return res.status(400).json({
+        success: false,
+        error: "User has reached the maximum reservation limit (3)",
+      });
+    }
+
     if (!validateReservationTime(coWorkingSpace, startTime, endTime)) {
       return res.status(400).json({
         success: false,
