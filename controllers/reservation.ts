@@ -15,8 +15,28 @@ const getReservations = async (req: Request, res: Response) => {
       req.user.role === "admin" ? {} : { user: req.user.id }
     );
     res.status(200).json({ success: true, data: reservations });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+  } catch (err) {
+    res.status(500).json({ success: false, error: (err as Error).message });
+  }
+};
+
+/**
+ * @desc    Get reservation by id
+ * @route   GET /api/v1/reservation
+ * @access  Private
+ */
+const getReservationById = async (req: Request, res: Response) => {
+  try {
+    const reservation = await Reservation.find(
+      req.user.role === "admin"
+        ? { _id: req.params.id }
+        : { user: req.user.id, _id: req.params.id }
+    );
+    res.status(200).json({ success: true, data: reservation });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, error: "Reservation ID is not valid" });
   }
 };
 
@@ -60,6 +80,17 @@ const createReservation = async (req: Request, res: Response) => {
         .json({ success: false, error: "Co-working space not found" });
     }
 
+    // Check if user already has three reservations
+    const userReservationCount = await Reservation.countDocuments({
+      user: req.user.id,
+    });
+    if (userReservationCount >= 3) {
+      return res.status(400).json({
+        success: false,
+        error: "User has reached the maximum reservation limit (3)",
+      });
+    }
+
     if (!validateReservationTime(coWorkingSpace, startTime, endTime)) {
       return res.status(400).json({
         success: false,
@@ -76,8 +107,8 @@ const createReservation = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ success: true, data: reservation });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+  } catch (err) {
+    res.status(500).json({ success: false, error: (err as Error).message });
   }
 };
 
@@ -134,8 +165,8 @@ const updateReservation = async (req: Request, res: Response) => {
     );
 
     res.status(200).json({ success: true, data: updatedReservation });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+  } catch (err) {
+    res.status(500).json({ success: false, error: (err as Error).message });
   }
 };
 
@@ -171,8 +202,8 @@ const deleteReservation = async (req: Request, res: Response) => {
       data: {},
       massage: `Reservation with id ${req.params.id} is now deleted.`,
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+  } catch (err) {
+    res.status(500).json({ success: false, error: (err as Error).message });
   }
 };
 

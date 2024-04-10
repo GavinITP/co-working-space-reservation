@@ -55,6 +55,11 @@ const register = async (req: Request, res: Response) => {
     });
 
     const token = generateToken(user);
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // expires in 24 hours
+    });
+
     res.json({ success: true, name, email, phone, role, token });
   } catch (err: any) {
     console.error(err.message);
@@ -87,6 +92,11 @@ const login = async (req: Request, res: Response) => {
     }
 
     const token = generateToken(user);
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // expires in 24 hours
+    });
+
     res.json({
       success: true,
       _id: user._id,
@@ -135,4 +145,20 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export { register, login, getMe, deleteUser };
+/**
+ * @desc Logout user
+ * @route GET /api/v1/auth/logout
+ * @access Private
+ */
+const logout = async (_req: Request, res: Response) => {
+  res.cookie("token", "none", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({
+    success: true,
+    data: {},
+  });
+};
+
+export { register, login, getMe, logout, deleteUser };
