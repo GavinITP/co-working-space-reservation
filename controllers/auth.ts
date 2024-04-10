@@ -121,6 +121,30 @@ const getMe = async (req: Request, res: Response) => {
   res.status(200).json({ success: true, data: user });
 };
 
+//@desc     Delete a user
+//@route    DELETE api/v1/auth/:uid
+//@access   Private
+
+const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.params.id);
+    let uid = req.params.id;
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found." });
+      return;
+    }
+
+    await user.deleteOne();
+    res.status(200).json({
+      success: true,
+      data: {},
+      massage: `User ${uid} is now deleted.`,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: (err as Error).message });
+  }
+};
+
 /**
  * @desc Logout user
  * @route GET /api/v1/auth/logout
@@ -137,4 +161,4 @@ const logout = async (_req: Request, res: Response) => {
   });
 };
 
-export { register, login, getMe, logout };
+export { register, login, getMe, logout, deleteUser };

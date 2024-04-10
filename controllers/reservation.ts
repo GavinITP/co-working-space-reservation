@@ -2,6 +2,7 @@ import Reservation from "../models/reservation";
 import validateReservationTime from "../helpers/reservation";
 import { Request, Response } from "express";
 import CoWorkingSpace from "../models/coWorkingSpace";
+import reservation from "../models/reservation";
 
 /**
  * @desc    Get all reservations
@@ -39,6 +40,25 @@ const getReservationById = async (req: Request, res: Response) => {
   }
 };
 
+//
+// @desc    Get all reservations
+// @route   GET /api/v1/reservation
+// @access  Private
+//
+const getReservationById = async (req: Request, res: Response) => {
+  try {
+    const reservartion = await Reservation.findById(req.params.id);
+    if (!reservartion) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reservation not found." });
+    }
+    res.status(200).json({ success: true, data: reservartion });
+  } catch (err) {
+    res.status(500).json({ success: false, message: (err as Error).message });
+  }
+};
+
 /**
  * @desc    Create a new reservation
  * @route   POST /api/v1/reservation
@@ -46,9 +66,14 @@ const getReservationById = async (req: Request, res: Response) => {
  */
 const createReservation = async (req: Request, res: Response) => {
   try {
-    const { coWorkingSpaceId, date, startTime, endTime } = req.body;
+    const cwsid = req.params.coWorkingSpaceId;
 
-    const coWorkingSpace = await CoWorkingSpace.findById(coWorkingSpaceId);
+    req.body.coWorkingSpace = cwsid;
+
+    // const { coWorkingSpaceId, date, startTime, endTime } = req.body;
+    const { date, startTime, endTime } = req.body;
+
+    const coWorkingSpace = await CoWorkingSpace.findById(cwsid);
     if (!coWorkingSpace) {
       return res
         .status(404)
@@ -75,7 +100,7 @@ const createReservation = async (req: Request, res: Response) => {
 
     const reservation = await Reservation.create({
       user: req.user.id,
-      coWorkingSpace: coWorkingSpaceId,
+      coWorkingSpace: cwsid,
       date,
       startTime,
       endTime,

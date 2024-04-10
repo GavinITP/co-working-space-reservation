@@ -10,10 +10,10 @@ import { protect, authorize } from "../middleware/auth";
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/", protect, getFeedbacks);
-router.get("/:id", protect, getFeedback);
-router.post("/", protect, addFeedback);
-router.put("/:id", protect, updateFeedback);
-router.delete("/:id", protect, deleteFeedback);
+router.get("/", protect, authorize(["admin", "user"]), getFeedbacks);
+router.get("/:id", protect, authorize(["admin", "user"]), getFeedback);
+router.post("/", protect, authorize(["admin", "user"]), addFeedback);
+router.put("/:id", protect, authorize(["user"]), updateFeedback);
+router.delete("/:id", protect, authorize(["admin", "user"]), deleteFeedback);
 
 export default router;

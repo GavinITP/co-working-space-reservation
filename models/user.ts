@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 
+import feedback from "./feedback";
+import reservation from "./reservation";
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -31,5 +34,20 @@ const UserSchema = new mongoose.Schema({
     select: false,
   },
 });
+
+// Cascade Delete feedbacks and reservartions when a user is deleted
+UserSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    // Delete feedbacks
+    console.log(`Feedbacks of user ${this._id} is being delete`);
+    await feedback.deleteMany({ user: this._id });
+    // Delete reservations
+    console.log(`Reservations of user ${this._id} is being delete`);
+    await reservation.deleteMany({ user: this._id });
+    next();
+  }
+);
 
 export default mongoose.model("User", UserSchema);
