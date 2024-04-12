@@ -2,7 +2,6 @@ import Reservation from "../models/reservation";
 import validateReservationTime from "../helpers/reservation";
 import { Request, Response } from "express";
 import CoWorkingSpace from "../models/coWorkingSpace";
-import reservation from "../models/reservation";
 
 /**
  * @desc    Get all reservations
@@ -37,25 +36,6 @@ const getReservationById = async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ success: false, error: "Reservation ID is not valid" });
-  }
-};
-
-//
-// @desc    Get all reservations
-// @route   GET /api/v1/reservation
-// @access  Private
-//
-const getReservationById = async (req: Request, res: Response) => {
-  try {
-    const reservartion = await Reservation.findById(req.params.id);
-    if (!reservartion) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Reservation not found." });
-    }
-    res.status(200).json({ success: true, data: reservartion });
-  } catch (err) {
-    res.status(500).json({ success: false, message: (err as Error).message });
   }
 };
 
@@ -94,7 +74,7 @@ const createReservation = async (req: Request, res: Response) => {
     if (!validateReservationTime(coWorkingSpace, startTime, endTime)) {
       return res.status(400).json({
         success: false,
-        error: "Reservation time is outside of co-working space opening hours",
+        error: "Your time reservation is not available or not valid",
       });
     }
 

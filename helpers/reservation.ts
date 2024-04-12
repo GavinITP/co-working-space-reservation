@@ -1,5 +1,12 @@
 import { CoWorkingSpaceType } from "../types";
-import { parse, isBefore, isAfter, isEqual } from "date-fns";
+import {
+  parse,
+  isBefore,
+  isAfter,
+  isEqual,
+  getMinutes,
+  getSeconds,
+} from "date-fns";
 
 const validateReservationTime = (
   coWorkingSpace: CoWorkingSpaceType,
@@ -20,6 +27,12 @@ const validateReservationTime = (
     conditionOne =
       isAfter(reservationStartDateTime, openingTime) ||
       isEqual(reservationStartDateTime, openingTime);
+
+    // Check if reservation start time minutes are only 00 or 30 and seconds are 00
+    conditionOne =
+      conditionOne &&
+      getMinutes(reservationStartDateTime) % 30 === 0 &&
+      getSeconds(reservationStartDateTime) === 0;
   }
 
   if (endTime) {
@@ -33,6 +46,12 @@ const validateReservationTime = (
     conditionTwo =
       isBefore(reservationEndDateTime, closingTime) ||
       isEqual(reservationEndDateTime, closingTime);
+
+    // Check if reservation end time minutes are only 00 or 30 and seconds are 00
+    conditionTwo =
+      conditionTwo &&
+      getMinutes(reservationEndDateTime) % 30 === 0 &&
+      getSeconds(reservationEndDateTime) === 0;
   }
 
   return conditionOne && conditionTwo;
