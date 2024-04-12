@@ -1,5 +1,8 @@
 import Reservation from "../models/reservation";
-import validateReservationTime from "../helpers/reservation";
+import {
+  validateReservationTime,
+  isReservationOverlap,
+} from "../helpers/reservation";
 import { Request, Response } from "express";
 import CoWorkingSpace from "../models/coWorkingSpace";
 
@@ -50,7 +53,6 @@ const createReservation = async (req: Request, res: Response) => {
 
     req.body.coWorkingSpace = cwsid;
 
-    // const { coWorkingSpaceId, date, startTime, endTime } = req.body;
     const { date, startTime, endTime } = req.body;
 
     const coWorkingSpace = await CoWorkingSpace.findById(cwsid);
@@ -60,7 +62,6 @@ const createReservation = async (req: Request, res: Response) => {
         .json({ success: false, error: "Co-working space not found" });
     }
 
-    // Check if user already has three reservations
     const userReservationCount = await Reservation.countDocuments({
       user: req.user.id,
     });
@@ -75,6 +76,20 @@ const createReservation = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: "Your time reservation is not available or not valid",
+      });
+    }
+
+    // Check for overlapping reservations
+    const isOverlap = await isReservationOverlap(
+      cwsid,
+      date,
+      startTime,
+      endTime
+    );
+    if (isOverlap) {
+      return res.status(400).json({
+        success: false,
+        error: "Your reservation overlaps with existing reservations",
       });
     }
 
@@ -101,6 +116,7 @@ const updateReservation = async (req: Request, res: Response) => {
   try {
     const { date, startTime, endTime } = req.body;
     const reservation = await Reservation.findById(req.params.id);
+    const cwsid = req.params.coWorkingSpaceId;
 
     if (!reservation) {
       return res
@@ -131,6 +147,21 @@ const updateReservation = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: "Reservation time isn't within range of opening hours",
+      });
+    }
+
+    // Check for overlapping reservations
+    const isOverlap = await isReservationOverlap(
+      cwsid,
+      date,
+      startTime,
+      endTime,
+      req.params.id // Exclude current reservation from overlap check when updating
+    );
+    if (isOverlap) {
+      return res.status(400).json({
+        success: false,
+        error: "Your reservation overlaps with existing reservations",
       });
     }
 

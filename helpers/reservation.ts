@@ -1,4 +1,5 @@
 import { CoWorkingSpaceType } from "../types";
+import Reservation from "../models/reservation";
 import {
   parse,
   isBefore,
@@ -72,4 +73,67 @@ const validateReservationTime = (
   );
 };
 
-export default validateReservationTime;
+const isReservationOverlap = async (
+  coWorkingSpaceId: string,
+  date: string,
+  newStartTime: string,
+  newEndTime: string,
+  excludedReservationId?: string
+): Promise<boolean> => {
+  const newStartDateTime = parse(
+    date + " " + newStartTime,
+    "dd-MM-yyyy HH:mm:ss",
+    new Date()
+  );
+  const newEndDateTime = parse(
+    date + " " + newEndTime,
+    "dd-MM-yyyy HH:mm:ss",
+    new Date()
+  );
+
+  const existingReservations = await Reservation.find({
+    coWorkingSpace: coWorkingSpaceId,
+    date: date,
+    _id: { $ne: excludedReservationId },
+  });
+
+  for (const reservation of existingReservations) {
+    const startDateTime = parse(
+      date + " " + reservation.startTime,
+      "dd-MM-yyyy HH:mm:ss",
+      new Date()
+    );
+    const endDateTime = parse(
+      date + " " + reservation.endTime,
+      "dd-MM-yyyy HH:mm:ss",
+      new Date()
+    );
+
+    if (
+      (isAfter(newStartDateTime, startDateTime) ||
+        isEqual(newStartDateTime, startDateTime)) &&
+      isBefore(newStartDateTime, endDateTime)
+    ) {
+      return true;
+    }
+
+    if (
+      isAfter(newEndDateTime, startDateTime) &&
+      (isBefore(newEndDateTime, endDateTime) ||
+        isEqual(newEndDateTime, endDateTime))
+    ) {
+      return true;
+    }
+
+    if (
+      isBefore(newStartDateTime, startDateTime) &&
+      isAfter(newEndDateTime, endDateTime)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export { validateReservationTime, isReservationOverlap };
