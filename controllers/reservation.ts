@@ -1,8 +1,10 @@
 import Reservation from "../models/reservation";
-import validateReservationTime from "../helpers/reservation";
+import {
+  validateReservationTime,
+  isReservationOverlap,
+} from "../helpers/reservation";
 import { Request, Response } from "express";
 import CoWorkingSpace from "../models/coWorkingSpace";
-import reservation from "../models/reservation";
 
 /**
  * @desc    Get all reservations
@@ -40,25 +42,6 @@ const getReservationById = async (req: Request, res: Response) => {
   }
 };
 
-//
-// @desc    Get all reservations
-// @route   GET /api/v1/reservation
-// @access  Private
-//
-const getReservationById = async (req: Request, res: Response) => {
-  try {
-    const reservartion = await Reservation.findById(req.params.id);
-    if (!reservartion) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Reservation not found." });
-    }
-    res.status(200).json({ success: true, data: reservartion });
-  } catch (err) {
-    res.status(500).json({ success: false, message: (err as Error).message });
-  }
-};
-
 /**
  * @desc    Create a new reservation
  * @route   POST /api/v1/reservation
@@ -70,7 +53,6 @@ const createReservation = async (req: Request, res: Response) => {
 
     req.body.coWorkingSpace = cwsid;
 
-    // const { coWorkingSpaceId, date, startTime, endTime } = req.body;
     const { date, startTime, endTime } = req.body;
 
     const coWorkingSpace = await CoWorkingSpace.findById(cwsid);
@@ -80,7 +62,6 @@ const createReservation = async (req: Request, res: Response) => {
         .json({ success: false, error: "Co-working space not found" });
     }
 
-    // Check if user already has three reservations
     const userReservationCount = await Reservation.countDocuments({
       user: req.user.id,
     });
@@ -94,7 +75,21 @@ const createReservation = async (req: Request, res: Response) => {
     if (!validateReservationTime(coWorkingSpace, startTime, endTime)) {
       return res.status(400).json({
         success: false,
-        error: "Reservation time is outside of co-working space opening hours",
+        error: "Your time reservation is not available or not valid",
+      });
+    }
+
+    // Check for overlapping reservations
+    const isOverlap = await isReservationOverlap(
+      cwsid,
+      date,
+      startTime,
+      endTime
+    );
+    if (isOverlap) {
+      return res.status(400).json({
+        success: false,
+        error: "Your reservation overlaps with existing reservations",
       });
     }
 
@@ -121,6 +116,7 @@ const updateReservation = async (req: Request, res: Response) => {
   try {
     const { date, startTime, endTime } = req.body;
     const reservation = await Reservation.findById(req.params.id);
+    const cwsid = req.params.coWorkingSpaceId;
 
     if (!reservation) {
       return res
@@ -151,6 +147,21 @@ const updateReservation = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: "Reservation time isn't within range of opening hours",
+      });
+    }
+
+    // Check for overlapping reservations
+    const isOverlap = await isReservationOverlap(
+      cwsid,
+      date,
+      startTime,
+      endTime,
+      req.params.id // Exclude current reservation from overlap check when updating
+    );
+    if (isOverlap) {
+      return res.status(400).json({
+        success: false,
+        error: "Your reservation overlaps with existing reservations",
       });
     }
 

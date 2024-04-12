@@ -1,7 +1,6 @@
 import express from "express";
 import {
   getReservations,
-  getReservationById,
   createReservation,
   updateReservation,
   deleteReservation,
