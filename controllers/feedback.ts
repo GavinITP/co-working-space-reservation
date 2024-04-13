@@ -5,7 +5,7 @@ import Feedback from "../models/feedback";
 //@desc     Get all feedback
 //@route    GET api/v1/feedbacks
 //@access   Public
-const getFeedbacks = async (req: Request, res: Response) => {
+const getFeedback = async (req: Request, res: Response) => {
   try {
     let query = Feedback.find();
 
@@ -36,7 +36,7 @@ const getFeedbacks = async (req: Request, res: Response) => {
 //@desc     Get single feedback
 //@route    GET api/v1/feedbacks/:id
 //@access   Public
-const getFeedback = async (req: Request, res: Response) => {
+const getFeedbackById = async (req: Request, res: Response) => {
   try {
     let fid = req.params.id;
     const feedback = await Feedback.findById(fid).populate({
@@ -196,8 +196,8 @@ const deleteFeedback = async (req: Request, res: Response) => {
 };
 
 export {
-  getFeedbacks,
   getFeedback,
+  getFeedbackById,
   addFeedback,
   updateFeedback,
   deleteFeedback,
