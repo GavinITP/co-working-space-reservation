@@ -5,7 +5,7 @@ import Feedback from "../models/feedback";
 //@desc     Get all feedback
 //@route    GET api/v1/feedbacks
 //@access   Public
-const getFeedback = async (req: Request, res: Response) => {
+const getFeedbacks = async (req: Request, res: Response) => {
   try {
     let query = Feedback.find();
 
@@ -196,7 +196,7 @@ const deleteFeedback = async (req: Request, res: Response) => {
 };
 
 export {
-  getFeedback,
+  getFeedbacks,
   getFeedbackById,
   addFeedback,
   updateFeedback,

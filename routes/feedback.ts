@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  getFeedback,
+  getFeedbacks,
   getFeedbackById,
   updateFeedback,
   addFeedback,
@@ -10,7 +10,7 @@ import { protect, authorize } from "../middleware/auth";
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/", protect, authorize(["admin", "user"]), getFeedback);
+router.get("/", protect, authorize(["admin", "user"]), getFeedbacks);
 router.get("/:id", protect, authorize(["admin", "user"]), getFeedbackById);
 router.post("/", protect, authorize(["admin", "user"]), addFeedback);
 router.put("/:id", protect, authorize(["user"]), updateFeedback);
