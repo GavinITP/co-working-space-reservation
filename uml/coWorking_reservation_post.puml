@@ -1,0 +1,23 @@
+@startuml Manage Hospital (POST)
+
+header Sameple VacQ Sequence Diagram
+footer Page %page% of %lastpage%
+title "Manage Hospital (POST)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:reservations" as routerReservation
+participant "<<controllers>>\n:reservations" as controllersReservation
+participant "<<model>>\n:Reservation" as modelReservation
+database "<<MongoDB>>\n:reservations" as ReservationDatabase
+
+client->server ++:req.post('/reservations')
+server->routerReservation ++:app.use('/reservations',reservation)
+routerReservation -> controllersReservation ++:createHospital()
+controllersReservation->modelReservation ++:create(req.body)
+modelReservation ->ReservationDatabase ++: ReservationSchema
+ReservationDatabase --> modelReservation --: reservation
+controllersReservation <-- modelReservation --: reservation
+controllersReservation->client --:response
+
+@enduml
