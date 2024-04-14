@@ -1,0 +1,24 @@
+@startuml Delete Hospital (DELETE)
+
+header Sameple VacQ Sequence Diagram
+footer Page %page% of %lastpage%
+title "Delete Hospital (DELETE)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:reservations" as routerReservation
+participant "<<controllers>>\n:reservations" as controllersReservation
+participant "<<model>>\n:Reservation" as modelReservation
+database "<<MongoDB>>\n:reservations" as ReservationDatabase
+
+client->server ++:req.delete('/reservations/:id')
+server->routerReservation ++:app.use('/reservations/:id',reservation)
+routerReservation -> controllersReservation ++:deleteReservation(id)
+controllersReservation->modelReservation ++:deleteReservation(id)
+modelReservation ->ReservationDatabase ++: ReservationSchema
+ReservationDatabase --> modelReservation --: response
+controllersReservation <-- modelReservation --:response
+controllersReservation->client --:response
+
+@enduml
+

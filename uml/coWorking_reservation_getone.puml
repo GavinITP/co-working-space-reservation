@@ -1,0 +1,23 @@
+@startuml Get one Hospital (GET)
+
+header Sameple VacQ Sequence Diagram
+footer Page %page% of %lastpage%
+title "Get one Hospital (GET)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:reservations" as routerReservation
+participant "<<controllers>>\n:reservations" as controllersReservation
+participant "<<model>>\n:Reservation" as modelReservation
+database "<<MongoDB>>\n:reservations" as ReservationDatabase
+
+client->server ++:req.get('/reservations/:id')
+server->routerReservation ++:app.use('/reservations/:id',reservation)
+routerReservation -> controllersReservation ++:getReservation(id)
+controllersReservation->modelReservation ++:getReservation(id)
+modelReservation ->ReservationDatabase ++: ReservationSchema
+ReservationDatabase --> modelReservation --: reservation #id
+controllersReservation <-- modelReservation --: reservation #id
+controllersReservation->client --:response
+
+@enduml
