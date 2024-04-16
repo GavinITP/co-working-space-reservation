@@ -15,7 +15,7 @@ client->server ++:req.get('/reservations/:id')
 server->routerReservation ++:app.use('/reservations/:id',reservation)
 routerReservation -> controllersReservation ++:getReservation(id)
 controllersReservation->modelReservation ++:getReservation(id)
-modelReservation ->ReservationDatabase ++: ReservationSchema
+modelReservation ->ReservationDatabase ++: findById(id)
 ReservationDatabase --> modelReservation --: reservation #id
 controllersReservation <-- modelReservation --: reservation #id
 controllersReservation->client --:response

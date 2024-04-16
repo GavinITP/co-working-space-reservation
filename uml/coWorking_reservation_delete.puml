@@ -15,7 +15,7 @@ client->server ++:req.delete('/reservations/:id')
 server->routerReservation ++:app.use('/reservations/:id',reservation)
 routerReservation -> controllersReservation ++:deleteReservation(id)
 controllersReservation->modelReservation ++:deleteReservation(id)
-modelReservation ->ReservationDatabase ++: ReservationSchema
+modelReservation ->ReservationDatabase ++: findByIdAndDelete(id)
 ReservationDatabase --> modelReservation --: response
 controllersReservation <-- modelReservation --:response
 controllersReservation->client --:response
