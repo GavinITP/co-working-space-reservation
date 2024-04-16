@@ -15,7 +15,7 @@ client->server ++:req.put('/reservations/:id')
 server->routerReservation ++:app.use('/reservations/:id',reservation)
 routerReservation -> controllersReservation ++:updateReservation(id)
 controllersReservation->modelReservation ++:updateReservation(id)
-modelReservation ->ReservationDatabase ++: ReservationSchema
+modelReservation ->ReservationDatabase ++: findByIdAndUpdate(id)
 ReservationDatabase --> modelReservation --: reservation
 controllersReservation <-- modelReservation --: reservation
 controllersReservation->client --:response

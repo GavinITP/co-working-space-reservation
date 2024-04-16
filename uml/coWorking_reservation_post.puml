@@ -15,7 +15,7 @@ client->server ++:req.post('/reservations')
 server->routerReservation ++:app.use('/reservations',reservation)
 routerReservation -> controllersReservation ++:createHospital()
 controllersReservation->modelReservation ++:create(req.body)
-modelReservation ->ReservationDatabase ++: ReservationSchema
+modelReservation ->ReservationDatabase ++: create(ReservationSchema)
 ReservationDatabase --> modelReservation --: reservation
 controllersReservation <-- modelReservation --: reservation
 controllersReservation->client --:response

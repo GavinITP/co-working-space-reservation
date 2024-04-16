@@ -15,7 +15,7 @@ client->server ++:req.get('/reservations')
 server->routerReservation ++:app.use('/reservations',reservation)
 routerReservation -> controllersReservation ++:getHospitals()
 controllersReservation->modelReservation ++:getHospitals()
-modelReservation ->ReservationDatabase ++: ReservationSchema
+modelReservation ->ReservationDatabase ++: find()
 ReservationDatabase --> modelReservation --: list of reservations owned by user
 controllersReservation <-- modelReservation --:list of reservations owned by user
 controllersReservation->client --:response
