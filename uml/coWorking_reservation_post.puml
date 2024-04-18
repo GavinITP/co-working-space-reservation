@@ -36,8 +36,8 @@ helper -> controllersReservation : isOverlap(bool)
 ' modelReservation -> controllersReservation : response
 controllersReservation->modelReservation :create(req.body)
 modelReservation ->ReservationDatabase : create(ReservationSchema)
-ReservationDatabase --> modelReservation --: response
-controllersReservation <-- modelReservation --: response
-controllersReservation->client --:response
+ReservationDatabase --> modelReservation --: reservation 
+controllersReservation <-- modelReservation --: reservation 
+controllersReservation->client --:reservation 
 
 @enduml
