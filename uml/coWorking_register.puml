@@ -10,15 +10,15 @@ participant "<<router>>\n:auths" as routerAuth
 participant "<<controllers>>\n:auth" as controllersAuths
 participant "<<model>>\n:User" as modelUser
 database "<<MongoDB>>\n:users" as UserDatabase
-
+  
 
 client->server ++:req.post('/register')
 server->routerAuth ++:app.use('/register',auth)
-routerAuth -> controllersAuths ++:register()
-controllersAuths -> UserDatabase ++: validate email
-UserDatabase -> controllersAuths --: return validation result
-controllersAuths -->  modelUser ++:create(req.body) 
-modelUser ->UserDatabase ++: UserSchema
+routerAuth -> controllersAuths ++:register(name, email, password, phone, role)
+controllersAuths -> controllersAuths ++: hashPassword(password)
+controllersAuths -> modelUser ++: name, email, password, phone, role
+modelUser -> UserDatabase ++: UserSchema
+' modelUser ->UserDatabase ++: UserSchema
 UserDatabase --> modelUser --: response
 controllersAuths <-- modelUser --: response
 controllersAuths->client --:response

@@ -8,17 +8,19 @@ participant "Client" as client
 participant "<<javaScript>>\n:server" as server
 participant "<<router>>\n:auths" as routerAuth
 participant "<<controllers>>\n:auth" as controllersAuths
-participant "<<model>>\n:User" as modelUser
+' participant "<<middleware>>\n:auth" as middleware
+participant "<<model>>\n:User" as modelUser  
 database "<<MongoDB>>\n:users" as UserDatabase
 
 client->server ++:req.post('/login')
 server->routerAuth ++:app.use('/login',auth)
-routerAuth -> controllersAuths ++:login()
+routerAuth -> controllersAuths ++:login(email, password)
+controllersAuths -> modelUser ++: login(email, password)
 ' controllersAuths -> UserDatabase ++: validate email
 ' UserDatabase -> controllersAuths ++: return validation result
-controllersAuths -->  UserDatabase ++:check if user existed 
-UserDatabase --> controllersAuths --:response
-controllersAuths --> routerAuth --:token
-routerAuth --> client --:token
+modelUser -->  UserDatabase ++:login(email, password)
+UserDatabase --> modelUser --:response
+modelUser --> controllersAuths --:response
+controllersAuths --> client --:response
 
 @enduml
