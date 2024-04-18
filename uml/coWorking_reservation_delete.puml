@@ -2,7 +2,7 @@
 
 header Sameple Co-working space Sequence Diagram
 footer Page %page% of %lastpage%
-title "Delete Reservation (DELETE)"
+title "Delete Reservation (DELETE)"  
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server

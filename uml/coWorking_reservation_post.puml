@@ -1,8 +1,8 @@
-@startuml Manage Hospital (POST)
+@startuml Create Reservation (POST)
 
-header Sameple VacQ Sequence Diagram
+header Sameple Co-working space Sequence Diagram
 footer Page %page% of %lastpage%
-title "Manage Hospital (POST)"
+title "Create Reservation (POST)"
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server

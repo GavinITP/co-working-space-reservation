@@ -1,8 +1,8 @@
-@startuml Update Hospital (PUT)
+@startuml Update Reservation (PUT)
 
-header Sameple VacQ Sequence Diagram
+header Sameple Co-working space Sequence Diagram
 footer Page %page% of %lastpage%
-title "Update Hospital (PUT)"
+title "Update Reservation (PUT)"
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
