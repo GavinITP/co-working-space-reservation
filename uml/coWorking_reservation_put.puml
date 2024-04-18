@@ -13,6 +13,8 @@ database "<<MongoDB>>\n:reservations" as ReservationDatabase
 
 client->server ++:req.put('/reservations/:id')
 server->routerReservation ++:app.use('/reservations/:id',reservation)
+routerReservation -> middleware ++: protect
+middleware -> routerReservation --: 
 routerReservation -> controllersReservation ++:updateReservation(id)
 controllersReservation->modelReservation ++:updateReservation(id)
 modelReservation ->ReservationDatabase ++: findByIdAndUpdate(id)

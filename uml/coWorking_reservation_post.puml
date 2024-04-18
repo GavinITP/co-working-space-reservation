@@ -7,17 +7,37 @@ title "Manage Hospital (POST)"
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
 participant "<<router>>\n:reservations" as routerReservation
+participant "<<middleware>>\n:auth" as middleware
 participant "<<controllers>>\n:reservations" as controllersReservation
+participant "<<helper>>\n:helper" as helper
 participant "<<model>>\n:Reservation" as modelReservation
 database "<<MongoDB>>\n:reservations" as ReservationDatabase
 
 client->server ++:req.post('/reservations')
 server->routerReservation ++:app.use('/reservations',reservation)
-routerReservation -> controllersReservation ++:createHospital()
-controllersReservation->modelReservation ++:create(req.body)
-modelReservation ->ReservationDatabase ++: create(ReservationSchema)
-ReservationDatabase --> modelReservation --: reservation
-controllersReservation <-- modelReservation --: reservation
+routerReservation -> middleware ++: protect
+middleware -> routerReservation : 
+routerReservation -> middleware : authorize(["user"])
+middleware -> routerReservation --: 
+routerReservation -> controllersReservation ++:createReservation(req.body)
+controllersReservation -> modelReservation ++: countDocuments({userId})
+modelReservation -> ReservationDatabase ++: count({user: userId})
+ReservationDatabase -> modelReservation : userReservationCount(int)
+modelReservation -> controllersReservation : userReservationCount(int)
+controllersReservation -> helper ++: validateReservationTime(coWorkingSpace, startTime, endTime)
+helper -> controllersReservation : boolean
+controllersReservation -> helper ++: isReservationOverlap(coWorkingSpaceId,date,startTime , endTime)
+helper -> modelReservation : find(coWorkingSpace: coWorkingSpaceId,date: date)
+modelReservation -> ReservationDatabase: find({coWorkingSpace: coWorkingSpaceId,date: date})
+ReservationDatabase -> modelReservation: existingReservations
+modelReservation -> helper : existingReservations
+helper -> controllersReservation : isOverlap(bool)
+
+' modelReservation -> controllersReservation : response
+controllersReservation->modelReservation :create(req.body)
+modelReservation ->ReservationDatabase : create(ReservationSchema)
+ReservationDatabase --> modelReservation --: response
+controllersReservation <-- modelReservation --: response
 controllersReservation->client --:response
 
 @enduml
