@@ -7,14 +7,18 @@ title "Get All Hospitals (GET)"
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
 participant "<<router>>\n:reservations" as routerReservation
+participant "<<middleware>>\n:auth" as middleware
 participant "<<controllers>>\n:reservations" as controllersReservation
+' participant "<<helper>>\n:helper" as helper
 participant "<<model>>\n:Reservation" as modelReservation
 database "<<MongoDB>>\n:reservations" as ReservationDatabase
 
 client->server ++:req.get('/reservations')
 server->routerReservation ++:app.use('/reservations',reservation)
-routerReservation -> controllersReservation ++:getHospitals()
-controllersReservation->modelReservation ++:getHospitals()
+routerReservation -> middleware ++: protect
+middleware -> routerReservation --: 
+routerReservation -> controllersReservation ++:getReservations()
+controllersReservation->modelReservation ++:getReservations()
 modelReservation ->ReservationDatabase ++: find()
 ReservationDatabase --> modelReservation --: list of reservations owned by user
 controllersReservation <-- modelReservation --:list of reservations owned by user
