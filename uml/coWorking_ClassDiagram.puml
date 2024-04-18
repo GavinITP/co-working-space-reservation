@@ -1,0 +1,54 @@
+@startuml Co-working Class Diagram
+left to right direction
+package "Co working Space"{
+    class "<<Application>>\nCo-working Space" as CoWorkingService{}
+
+    class "<<Resource>>\nReservations" as ResourceReservations{
+        <<GET>> +getReservations():Reservation
+        <<POST>> +createReservation():Reservation
+    }
+
+    class "<<Resource>>\nReservation" as ResourceReservation {
+        <<GET>> +getReservationById(): Reservation
+        <<PUT>> +updateReservation(): Reservation
+        <<DELETE>> +deleteReservation(): void
+    }
+
+    class "<<Representation>>\nReservation" as RepresentationReservation {
+        -name
+        -coWorkingSpace
+        -date
+        -startTime
+        -endTime
+        -telephone
+        -region
+    }
+
+    class "<<Resource>>\nFeedBacks" as ResourceFeedBacks{
+        <<GET>> +getReservations():FeedBack
+        <<POST>> +createReservation():FeedBack
+    }
+
+    class "<<Resource>>\nFeedBack" as ResourceFeedBack {
+        <<GET>> +getReservationById(): FeedBack
+        <<PUT>> +updateReservation(): FeedBack
+        <<DELETE>> +deleteReservation(): void
+    }
+
+    class "<<Representation>>\nReservation" as RepresentationReservation {
+        -name
+        -coWorkingSpace
+        -date
+        -startTime
+        -endTime
+        -telephone
+        -region
+    }
+
+}
+
+CoWorkingService ..> ResourceReservations:"/Reservations\n<<Path>>"
+ResourceReservations ..> ResourceReservation: "/{ReservationId}\n<<Path>>"
+ResourceReservation ..> RepresentationReservation: "<<use>>"
+
+@enduml
