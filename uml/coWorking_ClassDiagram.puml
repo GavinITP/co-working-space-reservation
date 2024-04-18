@@ -43,6 +43,20 @@ package "Co working Space"{
         -createdAt
     }
 
+    class "<<Resource>>\nAuth" as ResourceAuth {
+        <<POST>> +register(): User
+        <<POST>> +login(): User
+        <<GET>> +logout(): void
+    }
+
+    class "<<Representation>>\nFeedBack" as RepresentationAuth {
+        -name
+        -email
+        -phone
+        -role
+        -password
+    }
+
 }
 
 CoWorkingService ..> ResourceReservations:"/reservations\n<<Path>>"
@@ -52,5 +66,10 @@ ResourceReservation ..> RepresentationReservation: "<<use>>"
 CoWorkingService ..> ResourceFeedBacks:"/feedbacks\n<<Path>>"
 ResourceFeedBacks ..> ResourceFeedBack: "/{feedbackId}\n<<Path>>"
 ResourceFeedBack ..> RepresentationFeedBack: "<<use>>"
+
+CoWorkingService ..> ResourceAuth:"/login\n<<Path>>"
+CoWorkingService ..> ResourceAuth:"/logout\n<<Path>>"
+CoWorkingService ..> ResourceAuth:"/register\n<<Path>>"
+ResourceAuth ..> RepresentationAuth: "<<use>>"
 
 @enduml
