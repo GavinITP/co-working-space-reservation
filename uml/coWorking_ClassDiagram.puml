@@ -35,20 +35,22 @@ package "Co working Space"{
         <<DELETE>> +deleteReservation(): void
     }
 
-    class "<<Representation>>\nReservation" as RepresentationReservation {
-        -name
+    class "<<Representation>>\nFeedBack" as RepresentationFeedBack {
         -coWorkingSpace
-        -date
-        -startTime
-        -endTime
-        -telephone
-        -region
+        -user
+        -feedbackString
+        -rating
+        -createdAt
     }
 
 }
 
-CoWorkingService ..> ResourceReservations:"/Reservations\n<<Path>>"
-ResourceReservations ..> ResourceReservation: "/{ReservationId}\n<<Path>>"
+CoWorkingService ..> ResourceReservations:"/reservations\n<<Path>>"
+ResourceReservations ..> ResourceReservation: "/{reservationId}\n<<Path>>"
 ResourceReservation ..> RepresentationReservation: "<<use>>"
+
+CoWorkingService ..> ResourceFeedBacks:"/feedbacks\n<<Path>>"
+ResourceFeedBacks ..> ResourceFeedBack: "/{feedbackId}\n<<Path>>"
+ResourceFeedBack ..> RepresentationFeedBack: "<<use>>"
 
 @enduml
