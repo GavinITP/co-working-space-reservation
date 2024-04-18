@@ -1,8 +1,8 @@
-@startuml Get All Hospitals (GET)
+@startuml Get All Reservations (GET)
 
-header Sameple VacQ Sequence Diagram
+header Sameple Co-working space Sequence Diagram
 footer Page %page% of %lastpage%
-title "Get All Hospitals (GET)"
+title "Get All Reservations (GET)"
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
