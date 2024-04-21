@@ -64,7 +64,7 @@ const getFeedbackById = async (req: Request, res: Response) => {
 };
 
 //@desc     Add a feedback
-//@route    POST api/v1/feedbacks/
+//@route    POST api/v1/co-working-space/:coWorkingSpaceId/feedbacks/
 //@access   Private
 const addFeedback = async (req: Request, res: Response) => {
   try {
