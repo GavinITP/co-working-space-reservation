@@ -2,7 +2,7 @@
 
 header co-working Space 
 footer Page %page% of %lastpage%
-title "Logout (GET)"
+title "Log out (GET)"
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
