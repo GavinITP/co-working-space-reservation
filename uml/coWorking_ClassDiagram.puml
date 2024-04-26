@@ -70,6 +70,7 @@ ResourceFeedBack ..> RepresentationFeedBack: "<<use>>"
 CoWorkingService ..> ResourceAuth:"/login\n<<Path>>"
 CoWorkingService ..> ResourceAuth:"/logout\n<<Path>>"
 CoWorkingService ..> ResourceAuth:"/register\n<<Path>>"
+CoWorkingService ..> ResourceAuth:"/me\n<<Path>>"
 ResourceAuth ..> RepresentationAuth: "<<use>>"
 
 @enduml
