@@ -45,6 +45,15 @@ const register = async (req: Request, res: Response) => {
       return;
     }
 
+    // Check if the email is in a valid format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res
+        .status(400)
+        .json({ message: "Please provide a valid email address." });
+      return;
+    }
+
     const hashedPassword = await hashPassword(password);
     user = await User.create({
       name,
@@ -61,9 +70,9 @@ const register = async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, name, email, phone, role, token });
-  } catch (err: any) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+  } catch (err) {
+    console.error((err as Error).message);
+    res.status(500).send((err as Error).message);
   }
 };
 
