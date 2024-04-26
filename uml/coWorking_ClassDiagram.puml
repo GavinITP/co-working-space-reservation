@@ -46,6 +46,7 @@ package "Co working Space"{
     class "<<Resource>>\nAuth" as ResourceAuth {
         <<POST>> +register(): User
         <<POST>> +login(): User
+        <<GET>> +getMe(): User
         <<GET>> +logout(): void
     }
 
@@ -70,6 +71,7 @@ ResourceFeedBack ..> RepresentationFeedBack: "<<use>>"
 CoWorkingService ..> ResourceAuth:"/login\n<<Path>>"
 CoWorkingService ..> ResourceAuth:"/logout\n<<Path>>"
 CoWorkingService ..> ResourceAuth:"/register\n<<Path>>"
+CoWorkingService ..> ResourceAuth:"/me\n<<Path>>"
 ResourceAuth ..> RepresentationAuth: "<<use>>"
 
 @enduml

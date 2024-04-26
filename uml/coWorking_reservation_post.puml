@@ -26,7 +26,7 @@ ReservationDatabase -> modelReservation : userReservationCount(int)
 modelReservation -> controllersReservation : userReservationCount(int)
 controllersReservation -> helper ++: validateReservationTime(coWorkingSpace, startTime, endTime)
 helper -> controllersReservation : boolean
-controllersReservation -> helper ++: isReservationOverlap(coWorkingSpaceId,date,startTime , endTime)
+controllersReservation -> helper : isReservationOverlap(coWorkingSpaceId,date,startTime , endTime)
 helper -> modelReservation : find(coWorkingSpace: coWorkingSpaceId,date: date)
 modelReservation -> ReservationDatabase: find({coWorkingSpace: coWorkingSpaceId,date: date})
 ReservationDatabase -> modelReservation: existingReservations
